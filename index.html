@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日安裝與 CPI 監控</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 14px;
+  color: #1C1917;
+  background: #F7F5F0;
+  line-height: 1.65;
+  padding: 36px 28px;
+  min-height: 100vh;
+}
+
+.wrap { max-width: 980px; margin: 0 auto; }
+
+/* ── Header ── */
+.hdr { margin-bottom: 32px; }
+
+.hdr-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #A8A29E;
+  margin-bottom: 8px;
+}
+
+.hdr-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #1C1917;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.hdr-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #A8A29E;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #16A34A;
+  animation: pulse 2.2s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ── Notice ── */
+.notice {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #92400E;
+  background: #FFFBEB;
+  border: 0.5px solid #D97706;
+  border-radius: 3px;
+  padding: 7px 12px;
+  margin-bottom: 28px;
+}
+
+/* ── Filters ── */
+.flt {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 0.5px solid #E5E0D8;
+}
+
+.flt-grp { display: flex; align-items: center; gap: 7px; }
+
+.flt-grp label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #78716C;
+}
+
+.flt-grp select {
+  font-family: 'Inter', sans-serif;
+  padding: 5px 10px;
+  border: 0.5px solid #C8C0B4;
+  border-radius: 3px;
+  font-size: 12px;
+  background: #FFFFFF;
+  color: #1C1917;
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+}
+
+/* ── Metric Cards — max 4 ── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: #DDD8D0;
+  border: 1px solid #DDD8D0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: #FFFFFF;
+  padding: 20px 22px;
+}
+
+.card-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #A8A29E;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+.card-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: #1C1917;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.card-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #A8A29E;
+}
+
+/* ── Sections ── */
+.section {
+  background: #FFFFFF;
+  border: 0.5px solid #E5E0D8;
+  border-radius: 6px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1C1917;
+  margin-bottom: 3px;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: #A8A29E;
+  max-width: 460px;
+}
+
+.lgd {
+  display: flex;
+  gap: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #78716C;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lgd-i { display: flex; align-items: center; gap: 5px; }
+.lgd-ln { width: 12px; height: 2.5px; border-radius: 1.5px; flex-shrink: 0; }
+
+/* ── Table ── */
+.tbl-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tbl {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.tbl th {
+  font-family: 'Inter', sans-serif;
+  padding: 9px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: #A8A29E;
+  border-bottom: 0.5px solid #E5E0D8;
+  white-space: nowrap;
+}
+
+.tbl th.r, .tbl td.r { text-align: right; }
+
+.tbl td {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #78716C;
+  border-bottom: 0.5px solid #F0EDE6;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tbl tr:last-child td { border-bottom: none; }
+.tbl td:first-child { color: #1C1917; }
+
+.tbl td.num {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #1C1917;
+}
+
+.geo-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #78716C;
+  background: #F0EDE6;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.tag-hi { background: #FEF2F2; color: #B91C1C; }
+.tag-md { background: #FFFBEB; color: #92400E; }
+.tag-lo { background: #F0FDF4; color: #166534; }
+
+/* ── SDK Log ── */
+.sdk-row {
+  display: flex;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 0.5px solid #F0EDE6;
+  align-items: flex-start;
+}
+
+.sdk-row:last-child { border-bottom: none; }
+
+.sdk-date {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #A8A29E;
+  min-width: 88px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.sdk-name {
+  font-size: 13px;
+  color: #1C1917;
+  margin-bottom: 2px;
+}
+
+.sdk-note {
+  font-size: 12px;
+  color: #A8A29E;
+}
+
+.ver {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  background: #F0EDE6;
+  color: #78716C;
+  padding: 1px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  body { padding: 20px 16px; }
+  .hdr-title { font-size: 21px; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .card { padding: 16px 16px; }
+  .card-value { font-size: 23px; }
+  .section { padding: 16px 16px; }
+  .flt { gap: 10px; }
+  .lgd { margin-top: 4px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-eyebrow">行銷監控 · Google Ads ICM × AppsFlyer SSOT</div>
+    <div class="hdr-title">每日安裝與 CPI 監控</div>
+    <div class="hdr-meta">
+      <span class="live-dot"></span>
+      <span id="lastUpdate">載入中…</span>
+    </div>
+  </div>
+
+  <div id="dataNotice" class="notice" style="display:none"></div>
+
+  <div class="flt">
+    <div class="flt-grp"><label>地區</label><select id="fGeo" onchange="render()"><option value="all">全部</option><option value="TW">TW</option><option value="HK">HK</option></select></div>
+    <div class="flt-grp"><label>Campaign</label><select id="fCamp" onchange="render()"><option value="all">全部</option></select></div>
+    <div class="flt-grp"><label>期間</label><select id="fDays" onchange="render()"><option value="30">近 30 天</option><option value="60">近 60 天</option><option value="90">近 90 天</option><option value="0">全部</option></select></div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <div class="section-title">每日安裝數</div>
+        <div class="section-sub">Google ICM 通常高於 AF SSOT，屬歸因模型差異，觀察走勢是否同步即可</div>
+      </div>
+      <div class="lgd">
+        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF SSOT</div>
+        <div class="lgd-i"><span style="display:inline-block;width:14px;border-top:1.5px dashed rgba(37,99,235,.45)"></span>7 日均線</div>
+      </div>
+    </div>
+    <canvas id="cInstall" height="155"></canvas>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <div class="section-title">每次安裝成本（CPI）</div>
+        <div class="section-sub">兩者共用 Google Ads 花費，差異僅來自各自計算的安裝數量</div>
+      </div>
+      <div class="lgd">
+        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google CPI</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF CPI</div>
+      </div>
+    </div>
+    <canvas id="cCPI" height="125"></canvas>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div><div class="section-title">Campaign 明細</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Campaign</th>
+          <th>地區</th>
+          <th class="r">Google 安裝</th>
+          <th class="r">AF 安裝</th>
+          <th class="r">安裝差異</th>
+          <th class="r">Google CPI</th>
+          <th class="r">AF CPI</th>
+          <th class="r">CPI 差異</th>
+        </tr></thead>
+        <tbody id="campTbl"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <div class="section-title">SDK 升級紀錄</div>
+        <div class="section-sub">版本更新往往影響 AF 歸因計算，可對照圖表時間點</div>
+      </div>
+    </div>
+    <div id="sdkContainer"></div>
+  </div>
+
+</div>
+<script>
+let CAMPS = [], DATES = [], RAW = {}, chI = null, chC = null;
+
+function shortName(name) {
+  const parts = name.split('_');
+  const platform = parts.find(p => p === 'iOS' || p === 'Android') || '';
+  const geo = parts.find(p => p === 'TW' || p === 'HK') || '';
+  // grab the last 2 meaningful segments (e.g. 安裝_手操 or CPI_370)
+  const tail = parts.slice(-2).join('_');
+  return [platform, geo, tail].filter(Boolean).join(' · ');
+}
+
+function renderSdkLog(logs) {
+  const el = document.getElementById('sdkContainer');
+  if (!logs || logs.length === 0) {
+    el.innerHTML = '<p style="font-size:13px;color:#A8A29E;padding:8px 0">暫無記錄</p>';
+    return;
+  }
+  el.innerHTML = logs.map(l => `
+    <div class="sdk-row">
+      <div class="sdk-date">${l.date}</div>
+      <div>
+        <div class="sdk-name">${l.platform} <span class="ver">${l.version}</span></div>
+        ${l.note ? `<div class="sdk-note">${l.note}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function ma7(a) {
+  return a.map((_, i) => {
+    const sl = a.slice(Math.max(0, i-6), i+1);
+    return Math.round(sl.reduce((x,y) => x+y, 0) / sl.length);
+  });
+}
+
+function fmt(n) { return n.toLocaleString('zh-TW'); }
+
+function tagClass(v) {
+  const abs = Math.abs(parseFloat(v));
+  if (abs > 10) return 'tag-hi';
+  if (abs > 5)  return 'tag-md';
+  return 'tag-lo';
+}
+
+function render() {
+  const geo  = document.getElementById('fGeo').value;
+  const camp = document.getElementById('fCamp').value;
+  const days = parseInt(document.getElementById('fDays').value) || 9999;
+
+  const fc = CAMPS.filter(c =>
+    (geo === 'all' || c.geo === geo) &&
+    (camp === 'all' || c.id === camp)
+  );
+  const fd = days > 0 ? DATES.slice(-days) : DATES;
+
+  const gD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.gi || 0), 0));
+  const aD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.ai || 0), 0));
+  const spD = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.sp || 0), 0));
+
+  const gCPIArr = fd.map((_, i) => gD[i] > 0 ? +(spD[i]/gD[i]).toFixed(1) : 0);
+  const aCPIArr = fd.map((_, i) => aD[i] > 0 ? +(spD[i]/aD[i]).toFixed(1) : 0);
+  const lbls    = fd.map((d, i) => i % 7 === 0 ? d.slice(5) : '');
+
+  const tG  = gD.reduce((a,b) => a+b, 0);
+  const tA  = aD.reduce((a,b) => a+b, 0);
+  const tSp = spD.reduce((a,b) => a+b, 0);
+
+  const installDiv = tG > 0 ? ((tG-tA)/tG*100).toFixed(1) : '0';
+  const avgGCPI    = tG > 0 ? tSp/tG : 0;
+  const avgACPI    = tA > 0 ? tSp/tA : 0;
+  const cpiDiv     = avgGCPI > 0 ? ((avgACPI-avgGCPI)/avgGCPI*100).toFixed(1) : '—';
+
+  const hiColor = pct => Math.abs(parseFloat(pct)) > 10 ? '#B91C1C' : '#1C1917';
+
+  document.getElementById('cards').innerHTML = `
+    <div class="card">
+      <div class="card-label">Google 安裝</div>
+      <div class="card-value">${fmt(tG)}</div>
+      <div class="card-sub">期間合計</div>
+    </div>
+    <div class="card">
+      <div class="card-label">AF 安裝</div>
+      <div class="card-value">${fmt(tA)}</div>
+      <div class="card-sub">期間合計</div>
+    </div>
+    <div class="card">
+      <div class="card-label">安裝差異率</div>
+      <div class="card-value" style="color:${hiColor(installDiv)}">${installDiv}%</div>
+      <div class="card-sub">Google 高於 AF</div>
+    </div>
+    <div class="card">
+      <div class="card-label">CPI 差異（均值）</div>
+      <div class="card-value" style="color:${hiColor(cpiDiv)}">${cpiDiv}%</div>
+      <div class="card-sub">AF 較 Google 高</div>
+    </div>
+  `;
+
+  const tickC = '#A8A29E';
+  const gridC = 'rgba(28,25,23,.04)';
+  const fontCfg = { family: 'Inter' };
+
+  const baseOpts = {
+    responsive: true,
+    animation: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        bodyFont: fontCfg,
+        titleFont: fontCfg,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { maxTicksLimit: 8, color: tickC, font: { ...fontCfg, size: 11 } }
+      },
+      y: {
+        grid: { color: gridC },
+        ticks: { color: tickC, font: { ...fontCfg, size: 11 } }
+      }
+    }
+  };
+
+  if (chI) chI.destroy();
+  chI = new Chart(document.getElementById('cInstall').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: lbls,
+      datasets: [
+        { label:'Google Ads',   data: gD,      borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'AF SSOT',      data: aD,      borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'Google 7日均', data: ma7(gD), borderColor:'#2563EB', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
+        { label:'AF 7日均',     data: ma7(aD), borderColor:'#EA580C', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
+      ]
+    },
+    options: baseOpts
+  });
+
+  const cpiOpts = JSON.parse(JSON.stringify(baseOpts));
+  cpiOpts.plugins.tooltip.callbacks = { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y}` };
+  cpiOpts.scales.y.ticks.callback = v => '$' + v;
+
+  if (chC) chC.destroy();
+  chC = new Chart(document.getElementById('cCPI').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: lbls,
+      datasets: [
+        { label:'Google CPI', data: gCPIArr, borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'AF CPI',     data: aCPIArr, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+      ]
+    },
+    options: cpiOpts
+  });
+
+  const rows = fc.map(c => {
+    const g  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.gi || 0), 0);
+    const a  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.ai || 0), 0);
+    const sp = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.sp || 0), 0);
+
+    const dv     = g > 0 ? ((g-a)/g*100).toFixed(1) : '—';
+    const gCpi   = g > 0 ? sp/g : 0;
+    const afCpi  = a > 0 ? sp/a : 0;
+    const gCpiS  = g > 0 ? '$' + gCpi.toFixed(1) : '—';
+    const afCpiS = a > 0 ? '$' + afCpi.toFixed(1) : '—';
+    const cpiDf  = (g > 0 && a > 0) ? ((afCpi-gCpi)/gCpi*100) : null;
+    const cpiDfS = cpiDf !== null ? (cpiDf >= 0 ? '+' : '') + cpiDf.toFixed(1) + '%' : '—';
+
+    return `<tr>
+      <td title="${c.name}" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${shortName(c.name)}</td>
+      <td><span class="geo-tag">${c.geo}</span></td>
+      <td class="num r">${fmt(g)}</td>
+      <td class="num r">${fmt(a)}</td>
+      <td class="r"><span class="tag ${tagClass(dv)}">${dv}%</span></td>
+      <td class="num r">${gCpiS}</td>
+      <td class="num r">${afCpiS}</td>
+      <td class="r"><span class="tag ${cpiDf !== null ? tagClass(cpiDf) : 'tag-lo'}">${cpiDfS}</span></td>
+    </tr>`;
+  });
+
+  document.getElementById('campTbl').innerHTML = rows.join('');
+}
+
+(async function init() {
+  const notice = document.getElementById('dataNotice');
+  try {
+    const res = await fetch('./data.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const DATA = await res.json();
+
+    // Build CAMPS from campaigns list
+    CAMPS = (DATA.campaigns || []).map((name, i) => {
+      let geo = 'Other';
+      if (name.includes('_TW_')) geo = 'TW';
+      else if (name.includes('_HK_')) geo = 'HK';
+      return { id: 'C' + i, name, geo };
+    });
+
+    // Build sorted DATES from rows
+    const dateSet = new Set();
+    (DATA.rows || []).forEach(r => dateSet.add(r.date));
+    DATES = [...dateSet].sort();
+
+    // Init RAW with zeros then fill from rows
+    DATES.forEach(d => {
+      RAW[d] = {};
+      CAMPS.forEach(c => { RAW[d][c.id] = { gi: 0, ai: 0, sp: 0 }; });
+    });
+    (DATA.rows || []).forEach(r => {
+      const camp = CAMPS.find(c => c.name === r.campaign);
+      if (!camp || !RAW[r.date]) return;
+      RAW[r.date][camp.id] = {
+        gi: r.google_installs || 0,
+        ai: r.af_installs || 0,
+        sp: r.spend || 0
+      };
+    });
+
+    // Update header timestamp
+    if (DATA.generated_at) {
+      const ts = DATA.generated_at.replace('T', ' ').slice(0, 16);
+      document.getElementById('lastUpdate').textContent = '最後更新：' + ts;
+    }
+
+    // Populate campaign dropdown
+    const fCampEl = document.getElementById('fCamp');
+    CAMPS.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = shortName(c.name);
+      fCampEl.appendChild(o);
+    });
+
+    // Render SDK log from real data
+    renderSdkLog(DATA.sdk_log || []);
+
+    render();
+  } catch(e) {
+    if (notice) {
+      notice.textContent = '⚠ 無法載入 data.json：' + e.message + '（請確認伺服器已啟動）';
+      notice.style.display = 'block';
+    }
+    console.error('Failed to load data.json', e);
+  }
+})();
+</script>
+</body>
+</html>
