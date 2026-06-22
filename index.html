@@ -333,6 +333,21 @@ body {
 .info-q { font-size:13px; font-weight:500; color:#1C1917; margin:14px 0 4px; }
 .info-a { font-size:13px; color:#78716C; line-height:1.75; padding-left:12px; border-left:2px solid #E5E0D8; margin-bottom:4px; }
 @media (max-width:640px) { .info-section { padding:16px; } .info-dl { grid-template-columns:1fr; gap:2px 0; } .info-dt { margin-top:8px; } }
+
+/* ── Trend Heatmap ── */
+.hm-legend { display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:11px; color:#78716C; margin-bottom:14px; }
+.hm-bar { width:140px; height:10px; border-radius:2px; background:linear-gradient(90deg,#F5EFE6,#E0C49C,#C08C50,#7C4A1E); }
+.hm-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.hm { border-collapse:collapse; font-family:'Inter',sans-serif; }
+.hm th, .hm td { text-align:center; }
+.hm thead th { font-size:10px; font-weight:500; color:#A8A29E; padding:4px 2px; white-space:nowrap; }
+.hm .hm-name-h, .hm td.hm-name { position:sticky; left:0; background:#fff; z-index:1; }
+.hm .hm-name-h { text-align:left; padding-left:4px; }
+.hm td.hm-name { text-align:left; font-size:11px; color:#1C1917; padding:0 8px 0 4px; max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hm th.hm-d { min-width:24px; }
+.hm td.hm-c { font-size:9px; padding:0; width:26px; height:24px; border:0.5px solid rgba(255,255,255,.6); }
+.hm th.hm-avg-h { padding-left:8px; }
+.hm td.hm-avg { font-size:11px; font-weight:500; padding:0 6px; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -416,6 +431,17 @@ body {
   <div class="section">
     <div class="section-head">
       <div>
+        <div class="section-title">Campaign 走勢熱點圖</div>
+        <div class="section-sub">每格為當日「Google 與 AF 安裝差距 %（7 日均）」。同一列顏色越深＝該 campaign 差距越大；整列顏色穩定＝兩來源走勢同步。滑鼠移到格子可看當日數值。</div>
+      </div>
+    </div>
+    <div class="hm-legend"><span>差距小</span><span class="hm-bar"></span><span>差距大</span></div>
+    <div id="hmContainer"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div>
         <div class="section-title">SDK 升級紀錄</div>
         <div class="section-sub">版本更新往往影響 AF 歸因計算，可對照圖表時間點</div>
       </div>
@@ -493,6 +519,26 @@ function switchTab(name, btn) {
 
 let CAMPS = [], DATES = [], RAW = {}, chI = null, chC = null;
 
+const crosshairPlugin = {
+  id: 'crosshair',
+  afterDraw(chart) {
+    const active = chart.tooltip && chart.tooltip.getActiveElements ? chart.tooltip.getActiveElements() : [];
+    if (!active.length) return;
+    const x = active[0].element.x;
+    const { top, bottom } = chart.chartArea;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(28,25,23,.35)';
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
 function shortName(name) {
   const parts = name.split('_');
   const platform = parts.find(p => p === 'iOS' || p === 'Android') || '';
@@ -527,11 +573,44 @@ function ma7(a) {
 
 function fmt(n) { return n.toLocaleString('zh-TW'); }
 
-function tagClass(v) {
-  const abs = Math.abs(parseFloat(v));
-  if (abs > 10) return 'tag-hi';
-  if (abs > 5)  return 'tag-md';
-  return 'tag-lo';
+function brownShade(pct) {
+  const stops = [[0,[245,239,230]],[25,[224,196,156]],[50,[192,140,80]],[80,[124,74,30]]];
+  if (pct == null || isNaN(pct)) return { bg:'#F0EDE6', fg:'#C8C0B4' };
+  const p = Math.max(0, Math.min(80, pct));
+  let lo = stops[0], hi = stops[stops.length-1];
+  for (let i = 0; i < stops.length-1; i++) { if (p >= stops[i][0] && p <= stops[i+1][0]) { lo = stops[i]; hi = stops[i+1]; break; } }
+  const t = hi[0] === lo[0] ? 0 : (p - lo[0]) / (hi[0] - lo[0]);
+  const c = [0,1,2].map(k => Math.round(lo[1][k] + (hi[1][k]-lo[1][k]) * t));
+  return { bg:`rgb(${c[0]},${c[1]},${c[2]})`, fg: p >= 45 ? '#FFFFFF' : '#5C4326' };
+}
+
+function renderHeatmap(fc, fd) {
+  const el = document.getElementById('hmContainer');
+  if (!fc.length || !fd.length) { el.innerHTML = '<p style="font-size:13px;color:#A8A29E;padding:8px 0">暫無資料</p>'; return; }
+  const headCells = fd.map(d => `<th class="hm-d">${d.slice(5)}</th>`).join('');
+  const rows = fc.map(c => {
+    const gArr = fd.map(d => RAW[d]?.[c.id]?.gi || 0);
+    const aArr = fd.map(d => RAW[d]?.[c.id]?.ai || 0);
+    const gM = ma7(gArr), aM = ma7(aArr);
+    const gaps = fd.map((_, i) => gM[i] > 0 ? (gM[i]-aM[i]) / gM[i] * 100 : null);
+    const valid = gaps.filter(v => v != null);
+    const avg = valid.length ? valid.reduce((x,y) => x+y, 0) / valid.length : null;
+    const cells = gaps.map((v, i) => {
+      const s = brownShade(v);
+      const txt = v == null ? '' : Math.round(v);
+      const title = `${fd[i]}｜差距 ${v == null ? '—' : v.toFixed(1) + '%'}`;
+      return `<td class="hm-c" style="background:${s.bg};color:${s.fg}" title="${title}">${txt}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="hm-name" title="${c.name}">${shortName(c.name)}</td>
+      ${cells}
+      <td class="hm-avg" style="color:${avg != null && avg >= 45 ? '#7C4A1E' : '#1C1917'}">${avg == null ? '—' : avg.toFixed(0) + '%'}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<div class="hm-wrap"><table class="hm">
+    <thead><tr><th class="hm-name-h">Campaign</th>${headCells}<th class="hm-avg-h">期間平均</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
 function render() {
@@ -551,7 +630,7 @@ function render() {
 
   const gCPIArr = fd.map((_, i) => gD[i] > 0 ? +(spD[i]/gD[i]).toFixed(1) : 0);
   const aCPIArr = fd.map((_, i) => aD[i] > 0 ? +(spD[i]/aD[i]).toFixed(1) : 0);
-  const lbls    = fd.map((d, i) => i % 7 === 0 ? d.slice(5) : '');
+  const lbls    = fd.map(d => d.slice(5));
 
   const tG  = gD.reduce((a,b) => a+b, 0);
   const tA  = aD.reduce((a,b) => a+b, 0);
@@ -594,6 +673,7 @@ function render() {
   const baseOpts = {
     responsive: true,
     animation: false,
+    interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -607,7 +687,7 @@ function render() {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { maxTicksLimit: 8, color: tickC, font: { ...fontCfg, size: 11 } }
+        ticks: { autoSkip: true, autoSkipPadding: 10, maxRotation: 0, minRotation: 0, color: tickC, font: { ...fontCfg, size: 11 } }
       },
       y: {
         grid: { color: gridC },
@@ -628,6 +708,7 @@ function render() {
         { label:'AF 7日均',     data: ma7(aD), borderColor:'#EA580C', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
       ]
     },
+    plugins: [crosshairPlugin],
     options: baseOpts
   });
 
@@ -645,6 +726,7 @@ function render() {
         { label:'AF CPI',     data: aCPIArr, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
       ]
     },
+    plugins: [crosshairPlugin],
     options: cpiOpts
   });
 
@@ -666,14 +748,15 @@ function render() {
       <td><span class="geo-tag">${c.geo}</span></td>
       <td class="num r">${fmt(g)}</td>
       <td class="num r">${fmt(a)}</td>
-      <td class="r"><span class="tag ${tagClass(dv)}">${dv}%</span></td>
+      <td class="num r">${dv}%</td>
       <td class="num r">${gCpiS}</td>
       <td class="num r">${afCpiS}</td>
-      <td class="r"><span class="tag ${cpiDf !== null ? tagClass(cpiDf) : 'tag-lo'}">${cpiDfS}</span></td>
+      <td class="num r">${cpiDfS}</td>
     </tr>`;
   });
 
   document.getElementById('campTbl').innerHTML = rows.join('');
+  renderHeatmap(fc, fd);
 }
 
 (async function init() {
