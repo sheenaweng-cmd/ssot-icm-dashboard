@@ -312,6 +312,27 @@ body {
   .flt { gap: 10px; }
   .lgd { margin-top: 4px; }
 }
+
+/* ── Tabs ── */
+.tab-nav { display:flex; gap:0; margin-bottom:28px; border-bottom:1px solid #E5E0D8; }
+.tab-btn { font-family:'Inter',sans-serif; font-size:13px; font-weight:500; color:#A8A29E; background:none; border:none; padding:10px 18px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+.tab-btn.active { color:#1C1917; border-bottom-color:#1C1917; }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* ── Info Tab ── */
+.info-section { background:#fff; border:0.5px solid #E5E0D8; border-radius:6px; padding:24px 28px; margin-bottom:16px; }
+.info-h2 { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:500; color:#1C1917; margin-bottom:16px; padding-bottom:10px; border-bottom:0.5px solid #F0EDE6; }
+.info-h3 { font-family:'Inter',sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.07em; color:#A8A29E; margin:18px 0 8px; }
+.info-p { font-size:13px; color:#44403C; line-height:1.75; margin-bottom:8px; }
+.info-dl { display:grid; grid-template-columns:max-content 1fr; gap:6px 16px; font-size:13px; }
+.info-dt { font-family:'Inter',sans-serif; font-weight:500; color:#1C1917; white-space:nowrap; padding-top:1px; }
+.info-dd { color:#78716C; }
+.info-code { font-family:'Inter',monospace; font-size:11.5px; background:#F0EDE6; color:#44403C; padding:2px 6px; border-radius:3px; word-break:break-all; }
+.info-code-block { font-family:'Inter',monospace; font-size:12px; background:#F7F5F0; border:0.5px solid #E5E0D8; border-radius:4px; padding:12px 14px; margin:8px 0; line-height:1.8; color:#44403C; overflow-x:auto; }
+.info-q { font-size:13px; font-weight:500; color:#1C1917; margin:14px 0 4px; }
+.info-a { font-size:13px; color:#78716C; line-height:1.75; padding-left:12px; border-left:2px solid #E5E0D8; margin-bottom:4px; }
+@media (max-width:640px) { .info-section { padding:16px; } .info-dl { grid-template-columns:1fr; gap:2px 0; } .info-dt { margin-top:8px; } }
 </style>
 </head>
 <body>
@@ -326,6 +347,12 @@ body {
     </div>
   </div>
 
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('dashboard',this)">監控儀表板</button>
+    <button class="tab-btn" onclick="switchTab('info',this)">組員說明</button>
+  </div>
+
+  <div id="pane-dashboard" class="tab-pane active">
   <div id="dataNotice" class="notice" style="display:none"></div>
 
   <div class="flt">
@@ -396,8 +423,74 @@ body {
     <div id="sdkContainer"></div>
   </div>
 
+  </div><!-- /pane-dashboard -->
+
+  <div id="pane-info" class="tab-pane">
+
+    <div class="info-section">
+      <div class="info-h2">網頁導覽</div>
+      <div class="info-h3">篩選列</div>
+      <div class="info-dl">
+        <div class="info-dt">地區</div><div class="info-dd">切換台灣（TW）、香港（HK）或全部市場的數據</div>
+        <div class="info-dt">Campaign</div><div class="info-dd">選取特定投放活動，預設顯示全部加總</div>
+        <div class="info-dt">期間</div><div class="info-dd">近 30 天 / 近 60 天 / 近 90 天 / 全部</div>
+      </div>
+      <div class="info-h3">數據卡片</div>
+      <div class="info-dl">
+        <div class="info-dt">Google 安裝</div><div class="info-dd">選定期間內 Google Ads 後台回報的安裝總數</div>
+        <div class="info-dt">AF 安裝</div><div class="info-dd">選定期間內 AppsFlyer SSOT 歸因的安裝總數</div>
+        <div class="info-dt">安裝差異率</div><div class="info-dd">Google 比 AF 多出的比例，屬正常歸因差異，觀察走勢為主</div>
+        <div class="info-dt">CPI 差異</div><div class="info-dd">AF 計算出的 CPI 比 Google CPI 高出的比例</div>
+      </div>
+      <div class="info-h3">圖表與表格</div>
+      <div class="info-dl">
+        <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads 安裝、橙線 = AF 安裝、灰虛線 = 7 日移動平均</div>
+        <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">兩者共用同一筆花費，差異來自各自計算的安裝數量</div>
+        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動安裝數與 CPI 對比，差異欄以紅／黃／綠標示嚴重程度</div>
+        <div class="info-dt">SDK 升級紀錄</div><div class="info-dd">AppsFlyer SDK 版本更新時間點，可對照數據是否有異常波動</div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-h2">定義說明</div>
+      <div class="info-h3">安裝來源</div>
+      <div class="info-dl">
+        <div class="info-dt">Google ICM</div><div class="info-dd">Google Ads 內部歸因模型（In-Channel Measurement），包含 view-through attribution，數字通常偏高</div>
+        <div class="info-dt">AF SSOT</div><div class="info-dd">AppsFlyer Single Source of Truth，跨媒體去重後的歸因結果，通常低於 Google</div>
+      </div>
+      <div class="info-h3">差異標示說明</div>
+      <div class="info-dl">
+        <div class="info-dt"><span class="tag tag-lo">低</span></div><div class="info-dd">差異 ≤ 5%，屬正常範圍</div>
+        <div class="info-dt"><span class="tag tag-md">中</span></div><div class="info-dd">差異 5–10%，建議留意</div>
+        <div class="info-dt"><span class="tag tag-hi">高</span></div><div class="info-dd">差異 &gt; 10%，建議確認原因</div>
+      </div>
+      <div class="info-h3">常見原因</div>
+      <p class="info-p">Google ICM 通常高於 AF SSOT，主要來自歸因視窗不同、view-through attribution、跨裝置識別差異。若差異率突然異常升高，可能是 SDK 版本更新或 iOS 隱私政策變更所致。</p>
+    </div>
+
+    <div class="info-section">
+      <div class="info-h2">排程更新</div>
+      <div class="info-dl">
+        <div class="info-dt">更新時間</div><div class="info-dd">每日 <strong>15:00（台灣時間）</strong> 自動執行</div>
+        <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer SSOT CSV，同步至 Google Drive 後由系統讀取</div>
+        <div class="info-dt">網頁生效</div><div class="info-dd">Pipeline 完成後約 <strong>1–2 分鐘</strong>，重新整理頁面即可看到最新數據</div>
+        <div class="info-dt">顯示範圍</div><div class="info-dd">最後一筆有效數據（通常為 T-1），Google Ads 數據通常延遲一日</div>
+      </div>
+      <div class="info-h3">若數據未更新</div>
+      <p class="info-p">請通知負責人確認排程是否正常執行，或等到下一個工作日更新。</p>
+    </div>
+
+  </div><!-- /pane-info -->
+
 </div>
 <script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-' + name).classList.add('active');
+}
+
 let CAMPS = [], DATES = [], RAW = {}, chI = null, chC = null;
 
 function shortName(name) {
