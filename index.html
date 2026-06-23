@@ -6,16 +6,16 @@
 <title>每日安裝與 CPI 監控</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Noto Sans TC', sans-serif;
+  font-family: 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', sans-serif;
   font-size: 14px;
-  color: #1C1917;
-  background: #F7F5F0;
+  color: #111827;
+  background: #F4F6FA;
   line-height: 1.65;
   padding: 36px 28px;
   min-height: 100vh;
@@ -37,10 +37,10 @@ body {
 }
 
 .hdr-title {
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', sans-serif;
   font-size: 26px;
   font-weight: 500;
-  color: #1C1917;
+  color: #111827;
   line-height: 1.25;
   margin-bottom: 10px;
 }
@@ -84,7 +84,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   padding-bottom: 24px;
-  border-bottom: 0.5px solid #E5E0D8;
+  border-bottom: 0.5px solid #E2E8F0;
 }
 
 .flt-grp { display: flex; align-items: center; gap: 7px; }
@@ -92,17 +92,17 @@ body {
 .flt-grp label {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  color: #78716C;
+  color: #374151;
 }
 
 .flt-grp select {
   font-family: 'Inter', sans-serif;
   padding: 5px 10px;
-  border: 0.5px solid #C8C0B4;
+  border: 0.5px solid #9CA3AF;
   border-radius: 3px;
   font-size: 12px;
   background: #FFFFFF;
-  color: #1C1917;
+  color: #111827;
   cursor: pointer;
   outline: none;
   appearance: auto;
@@ -113,8 +113,8 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: #DDD8D0;
-  border: 1px solid #DDD8D0;
+  background: #E2E8F0;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -137,7 +137,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 500;
-  color: #1C1917;
+  color: #111827;
   line-height: 1;
   margin-bottom: 4px;
 }
@@ -151,7 +151,7 @@ body {
 /* ── Sections ── */
 .section {
   background: #FFFFFF;
-  border: 0.5px solid #E5E0D8;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 22px 24px;
   margin-bottom: 16px;
@@ -167,10 +167,10 @@ body {
 }
 
 .section-title {
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', sans-serif;
   font-size: 15px;
   font-weight: 500;
-  color: #1C1917;
+  color: #111827;
   margin-bottom: 3px;
 }
 
@@ -185,7 +185,7 @@ body {
   gap: 14px;
   font-family: 'Inter', sans-serif;
   font-size: 11px;
-  color: #78716C;
+  color: #374151;
   flex-wrap: wrap;
   align-items: center;
   flex-shrink: 0;
@@ -213,7 +213,7 @@ body {
   font-size: 11px;
   font-weight: 500;
   color: #A8A29E;
-  border-bottom: 0.5px solid #E5E0D8;
+  border-bottom: 0.5px solid #E2E8F0;
   white-space: nowrap;
 }
 
@@ -222,26 +222,26 @@ body {
 .tbl td {
   padding: 11px 14px;
   font-size: 13px;
-  color: #78716C;
-  border-bottom: 0.5px solid #F0EDE6;
+  color: #374151;
+  border-bottom: 0.5px solid #F9FAFB;
   vertical-align: middle;
   white-space: nowrap;
 }
 
 .tbl tr:last-child td { border-bottom: none; }
-.tbl td:first-child { color: #1C1917; }
+.tbl td:first-child { color: #111827; }
 
 .tbl td.num {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  color: #1C1917;
+  color: #111827;
 }
 
 .geo-tag {
   font-family: 'Inter', sans-serif;
   font-size: 11px;
-  color: #78716C;
-  background: #F0EDE6;
+  color: #1D4ED8;
+  background: #EFF6FF;
   padding: 2px 7px;
   border-radius: 3px;
 }
@@ -255,16 +255,13 @@ body {
   display: inline-block;
 }
 
-.tag-hi { background: #FEF2F2; color: #B91C1C; }
-.tag-md { background: #FFFBEB; color: #92400E; }
-.tag-lo { background: #F0FDF4; color: #166534; }
 
 /* ── SDK Log ── */
 .sdk-row {
   display: flex;
   gap: 20px;
   padding: 11px 0;
-  border-bottom: 0.5px solid #F0EDE6;
+  border-bottom: 0.5px solid #F9FAFB;
   align-items: flex-start;
 }
 
@@ -281,7 +278,7 @@ body {
 
 .sdk-name {
   font-size: 13px;
-  color: #1C1917;
+  color: #111827;
   margin-bottom: 2px;
 }
 
@@ -293,8 +290,8 @@ body {
 .ver {
   font-family: 'Inter', sans-serif;
   font-size: 11px;
-  background: #F0EDE6;
-  color: #78716C;
+  background: #F9FAFB;
+  color: #374151;
   padding: 1px 6px;
   border-radius: 3px;
   display: inline-block;
@@ -314,36 +311,36 @@ body {
 }
 
 /* ── Tabs ── */
-.tab-nav { display:flex; gap:0; margin-bottom:28px; border-bottom:1px solid #E5E0D8; }
+.tab-nav { display:flex; gap:0; margin-bottom:28px; border-bottom:1px solid #E2E8F0; }
 .tab-btn { font-family:'Inter',sans-serif; font-size:13px; font-weight:500; color:#A8A29E; background:none; border:none; padding:10px 18px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
-.tab-btn.active { color:#1C1917; border-bottom-color:#1C1917; }
+.tab-btn.active { color:#EA580C; border-bottom-color:#EA580C; }
 .tab-pane { display:none; }
 .tab-pane.active { display:block; }
 
 /* ── Info Tab ── */
-.info-section { background:#fff; border:0.5px solid #E5E0D8; border-radius:6px; padding:24px 28px; margin-bottom:16px; }
-.info-h2 { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:500; color:#1C1917; margin-bottom:16px; padding-bottom:10px; border-bottom:0.5px solid #F0EDE6; }
+.info-section { background:#fff; border:1px solid #E2E8F0; border-radius:6px; padding:24px 28px; margin-bottom:16px; }
+.info-h2 { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:500; color:#111827; margin-bottom:16px; padding-bottom:10px; border-bottom:0.5px solid #F9FAFB; }
 .info-h3 { font-family:'Inter',sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.07em; color:#A8A29E; margin:18px 0 8px; }
 .info-p { font-size:13px; color:#44403C; line-height:1.75; margin-bottom:8px; }
 .info-dl { display:grid; grid-template-columns:max-content 1fr; gap:6px 16px; font-size:13px; }
-.info-dt { font-family:'Inter',sans-serif; font-weight:500; color:#1C1917; white-space:nowrap; padding-top:1px; }
-.info-dd { color:#78716C; }
-.info-code { font-family:'Inter',monospace; font-size:11.5px; background:#F0EDE6; color:#44403C; padding:2px 6px; border-radius:3px; word-break:break-all; }
-.info-code-block { font-family:'Inter',monospace; font-size:12px; background:#F7F5F0; border:0.5px solid #E5E0D8; border-radius:4px; padding:12px 14px; margin:8px 0; line-height:1.8; color:#44403C; overflow-x:auto; }
-.info-q { font-size:13px; font-weight:500; color:#1C1917; margin:14px 0 4px; }
-.info-a { font-size:13px; color:#78716C; line-height:1.75; padding-left:12px; border-left:2px solid #E5E0D8; margin-bottom:4px; }
+.info-dt { font-family:'Inter',sans-serif; font-weight:500; color:#111827; white-space:nowrap; padding-top:1px; }
+.info-dd { color:#374151; }
+.info-code { font-family:'Inter',monospace; font-size:11.5px; background:#F9FAFB; color:#44403C; padding:2px 6px; border-radius:3px; word-break:break-all; }
+.info-code-block { font-family:'Inter',monospace; font-size:12px; background:#F7F5F0; border:0.5px solid #E2E8F0; border-radius:4px; padding:12px 14px; margin:8px 0; line-height:1.8; color:#44403C; overflow-x:auto; }
+.info-q { font-size:13px; font-weight:500; color:#111827; margin:14px 0 4px; }
+.info-a { font-size:13px; color:#374151; line-height:1.75; padding-left:12px; border-left:2px solid #E2E8F0; margin-bottom:4px; }
 @media (max-width:640px) { .info-section { padding:16px; } .info-dl { grid-template-columns:1fr; gap:2px 0; } .info-dt { margin-top:8px; } }
 
 /* ── Trend Heatmap ── */
-.hm-legend { display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:11px; color:#78716C; margin-bottom:14px; }
-.hm-bar { width:140px; height:10px; border-radius:2px; background:linear-gradient(90deg,#F5EFE6,#E0C49C,#C08C50,#7C4A1E); }
+.hm-legend { display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:11px; color:#374151; margin-bottom:14px; }
+.hm-bar { width:140px; height:10px; border-radius:2px; background:linear-gradient(90deg,#FDF2F4,#FECDD3,#BE123C,#881337); }
 .hm-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .hm { border-collapse:collapse; font-family:'Inter',sans-serif; }
 .hm th, .hm td { text-align:center; }
 .hm thead th { font-size:10px; font-weight:500; color:#A8A29E; padding:4px 2px; white-space:nowrap; }
 .hm .hm-name-h, .hm td.hm-name { position:sticky; left:0; background:#fff; z-index:1; }
 .hm .hm-name-h { text-align:left; padding-left:4px; }
-.hm td.hm-name { text-align:left; font-size:11px; color:#1C1917; padding:0 8px 0 4px; max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hm td.hm-name { text-align:left; font-size:11px; color:#111827; padding:0 8px 0 4px; max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hm th.hm-d { min-width:24px; }
 .hm td.hm-c { font-size:9px; padding:0; width:26px; height:24px; border:0.5px solid rgba(255,255,255,.6); }
 .hm th.hm-avg-h { padding-left:8px; }
@@ -432,7 +429,7 @@ body {
     <div class="section-head">
       <div>
         <div class="section-title">Campaign 走勢熱點圖</div>
-        <div class="section-sub">每格為當日「Google 與 AF 安裝差距 %（7 日均）」。同一列顏色越深＝該 campaign 差距越大；整列顏色穩定＝兩來源走勢同步。滑鼠移到格子可看當日數值。</div>
+        <div class="section-sub">每格為當日「走勢背離程度（pp）」：先算各來源比前一天的漲跌幅%，再取兩邊差的絕對值。顏色越深代表當天兩來源走勢分岔越大；整列顏色穩定代表同步走勢。滑鼠移到格子可看精確數值。</div>
       </div>
     </div>
     <div class="hm-legend"><span>差距小</span><span class="hm-bar"></span><span>差距大</span></div>
@@ -472,7 +469,8 @@ body {
       <div class="info-dl">
         <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads 安裝、橙線 = AF 安裝、灰虛線 = 7 日移動平均</div>
         <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">兩者共用同一筆花費，差異來自各自計算的安裝數量</div>
-        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動安裝數與 CPI 對比，差異欄以紅／黃／綠標示嚴重程度</div>
+        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動安裝數與 CPI 對比，差異欄以純文字顯示；安裝數為 0 的活動不顯示</div>
+        <div class="info-dt">Campaign 走勢熱點圖</div><div class="info-dd">每格為當日走勢背離程度（pp）：各來源比前一天漲跌幅之差的絕對值。顏色越深代表當天兩邊走勢差異越大</div>
         <div class="info-dt">SDK 升級紀錄</div><div class="info-dd">AppsFlyer SDK 版本更新時間點，可對照數據是否有異常波動</div>
       </div>
     </div>
@@ -484,12 +482,8 @@ body {
         <div class="info-dt">Google ICM</div><div class="info-dd">Google Ads 內部歸因模型（In-Channel Measurement），包含 view-through attribution，數字通常偏高</div>
         <div class="info-dt">AF SSOT</div><div class="info-dd">AppsFlyer Single Source of Truth，跨媒體去重後的歸因結果，通常低於 Google</div>
       </div>
-      <div class="info-h3">差異標示說明</div>
-      <div class="info-dl">
-        <div class="info-dt"><span class="tag tag-lo">低</span></div><div class="info-dd">差異 ≤ 5%，屬正常範圍</div>
-        <div class="info-dt"><span class="tag tag-md">中</span></div><div class="info-dd">差異 5–10%，建議留意</div>
-        <div class="info-dt"><span class="tag tag-hi">高</span></div><div class="info-dd">差異 &gt; 10%，建議確認原因</div>
-      </div>
+      <div class="info-h3">走勢背離程度（pp）</div>
+      <p class="info-p">pp（percentage points，百分點）是衡量兩個來源「走勢差多少」的單位。例如 AF 今日比昨日漲 20%、Google 漲 15%，兩邊差 5pp。數字越小代表兩邊越同步；數字突然拉大，建議確認是否有 SDK 版本更新或歸因異常。</p>
       <div class="info-h3">常見原因</div>
       <p class="info-p">Google ICM 通常高於 AF SSOT，主要來自歸因視窗不同、view-through attribution、跨裝置識別差異。若差異率突然異常升高，可能是 SDK 版本更新或 iOS 隱私政策變更所致。</p>
     </div>
@@ -573,38 +567,45 @@ function ma7(a) {
 
 function fmt(n) { return n.toLocaleString('zh-TW'); }
 
-function brownShade(pct) {
-  const stops = [[0,[245,239,230]],[25,[224,196,156]],[50,[192,140,80]],[80,[124,74,30]]];
-  if (pct == null || isNaN(pct)) return { bg:'#F0EDE6', fg:'#C8C0B4' };
-  const p = Math.max(0, Math.min(80, pct));
+function wineShade(pct) {
+  const stops = [[0,[253,242,244]],[15,[254,205,211]],[35,[190,18,60]],[50,[136,19,55]]];
+  if (pct == null || isNaN(pct)) return { bg:'#F9FAFB', fg:'#9CA3AF' };
+  const p = Math.max(0, Math.min(50, pct));
   let lo = stops[0], hi = stops[stops.length-1];
   for (let i = 0; i < stops.length-1; i++) { if (p >= stops[i][0] && p <= stops[i+1][0]) { lo = stops[i]; hi = stops[i+1]; break; } }
   const t = hi[0] === lo[0] ? 0 : (p - lo[0]) / (hi[0] - lo[0]);
   const c = [0,1,2].map(k => Math.round(lo[1][k] + (hi[1][k]-lo[1][k]) * t));
-  return { bg:`rgb(${c[0]},${c[1]},${c[2]})`, fg: p >= 45 ? '#FFFFFF' : '#5C4326' };
+  return { bg:`rgb(${c[0]},${c[1]},${c[2]})`, fg: p >= 30 ? '#FFFFFF' : '#881337' };
 }
 
 function renderHeatmap(fc, fd) {
   const el = document.getElementById('hmContainer');
-  if (!fc.length || !fd.length) { el.innerHTML = '<p style="font-size:13px;color:#A8A29E;padding:8px 0">暫無資料</p>'; return; }
+  if (!fc.length || !fd.length) { el.innerHTML = '<p style="font-size:13px;color:#9CA3AF;padding:8px 0">暫無資料</p>'; return; }
   const headCells = fd.map(d => `<th class="hm-d">${d.slice(5)}</th>`).join('');
   const rows = fc.map(c => {
     const gArr = fd.map(d => RAW[d]?.[c.id]?.gi || 0);
     const aArr = fd.map(d => RAW[d]?.[c.id]?.ai || 0);
-    const gM = ma7(gArr), aM = ma7(aArr);
-    const gaps = fd.map((_, i) => gM[i] > 0 ? (gM[i]-aM[i]) / gM[i] * 100 : null);
+    const gaps = fd.map((_, i) => {
+      if (i === 0) return null;
+      const gY = gArr[i-1], gT = gArr[i];
+      const aY = aArr[i-1], aT = aArr[i];
+      if (gY <= 0 || aY <= 0) return null;
+      const gChg = (gT - gY) / gY * 100;
+      const aChg = (aT - aY) / aY * 100;
+      return Math.abs(aChg - gChg);
+    });
     const valid = gaps.filter(v => v != null);
     const avg = valid.length ? valid.reduce((x,y) => x+y, 0) / valid.length : null;
     const cells = gaps.map((v, i) => {
-      const s = brownShade(v);
+      const s = wineShade(v);
       const txt = v == null ? '' : Math.round(v);
-      const title = `${fd[i]}｜差距 ${v == null ? '—' : v.toFixed(1) + '%'}`;
+      const title = `${fd[i]}｜走勢背離 ${v == null ? '—' : v.toFixed(1) + 'pp'}`;
       return `<td class="hm-c" style="background:${s.bg};color:${s.fg}" title="${title}">${txt}</td>`;
     }).join('');
     return `<tr>
-      <td class="hm-name" title="${c.name}">${shortName(c.name)}</td>
+      <td class="hm-name" title="${c.name}">${c.name}</td>
       ${cells}
-      <td class="hm-avg" style="color:${avg != null && avg >= 45 ? '#7C4A1E' : '#1C1917'}">${avg == null ? '—' : avg.toFixed(0) + '%'}</td>
+      <td class="hm-avg" style="color:${avg != null && avg >= 20 ? '#881337' : '#111827'}">${avg == null ? '—' : avg.toFixed(0) + 'pp'}</td>
     </tr>`;
   }).join('');
   el.innerHTML = `<div class="hm-wrap"><table class="hm">
@@ -641,7 +642,7 @@ function render() {
   const avgACPI    = tA > 0 ? tSp/tA : 0;
   const cpiDiv     = avgGCPI > 0 ? ((avgACPI-avgGCPI)/avgGCPI*100).toFixed(1) : '—';
 
-  const hiColor = pct => Math.abs(parseFloat(pct)) > 10 ? '#B91C1C' : '#1C1917';
+  const hiColor = pct => Math.abs(parseFloat(pct)) > 10 ? '#881337' : '#111827';
 
   document.getElementById('cards').innerHTML = `
     <div class="card">
@@ -730,7 +731,11 @@ function render() {
     options: cpiOpts
   });
 
-  const rows = fc.map(c => {
+  const fcVisible = fc.filter(c =>
+    fd.some(d => (RAW[d]?.[c.id]?.gi || 0) + (RAW[d]?.[c.id]?.ai || 0) > 0)
+  );
+
+  const rows = fcVisible.map(c => {
     const g  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.gi || 0), 0);
     const a  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.ai || 0), 0);
     const sp = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.sp || 0), 0);
@@ -744,7 +749,7 @@ function render() {
     const cpiDfS = cpiDf !== null ? (cpiDf >= 0 ? '+' : '') + cpiDf.toFixed(1) + '%' : '—';
 
     return `<tr>
-      <td title="${c.name}" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${shortName(c.name)}</td>
+      <td title="${c.name}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;font-size:11px;">${c.name}</td>
       <td><span class="geo-tag">${c.geo}</span></td>
       <td class="num r">${fmt(g)}</td>
       <td class="num r">${fmt(a)}</td>
@@ -756,7 +761,7 @@ function render() {
   });
 
   document.getElementById('campTbl').innerHTML = rows.join('');
-  renderHeatmap(fc, fd);
+  renderHeatmap(fcVisible, fd);
 }
 
 (async function init() {
