@@ -810,7 +810,7 @@ function render() {
     CAMPS.forEach(c => {
       const o = document.createElement('option');
       o.value = c.id;
-      o.textContent = shortName(c.name);
+      o.textContent = c.name;
       fCampEl.appendChild(o);
     });
 
