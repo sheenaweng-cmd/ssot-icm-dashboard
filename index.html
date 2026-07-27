@@ -63,6 +63,7 @@ body {
   flex-shrink: 0;
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.2} }
+.live-dot.stale { background: #DC2626; animation: none; }
 
 /* ── Notice ── */
 .notice {
@@ -74,6 +75,12 @@ body {
   border-radius: 3px;
   padding: 7px 12px;
   margin-bottom: 28px;
+}
+.notice.stale {
+  color: #7F1D1D;
+  background: #FEF2F2;
+  border-color: #DC2626;
+  font-weight: 500;
 }
 
 /* ── Filters ── */
@@ -354,8 +361,9 @@ body {
     <div class="hdr-eyebrow">行銷監控 · Google Ads ICM × AppsFlyer SSOT</div>
     <div class="hdr-title">每日安裝與 CPI 監控</div>
     <div class="hdr-meta">
-      <span class="live-dot"></span>
-      <span id="lastUpdate">載入中…</span>
+      <span class="live-dot" id="liveDot"></span>
+      <span id="dataThrough">載入中…</span>
+      <span id="lastUpdate"></span>
     </div>
   </div>
 
@@ -491,13 +499,13 @@ body {
     <div class="info-section">
       <div class="info-h2">排程更新</div>
       <div class="info-dl">
-        <div class="info-dt">更新時間</div><div class="info-dd">每日 <strong>17:00（台灣時間）</strong> 自動執行</div>
+        <div class="info-dt">更新時間</div><div class="info-dd">每日 <strong>13:30（台灣時間）起每 30 分鐘嘗試一次</strong>，當日第一次成功後即停止重試；來源 CSV 約 12:40 產出</div>
         <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer SSOT CSV，同步至 Google Drive 後由系統讀取</div>
         <div class="info-dt">網頁生效</div><div class="info-dd">Pipeline 完成後約 <strong>1–2 分鐘</strong>，重新整理頁面即可看到最新數據</div>
         <div class="info-dt">顯示範圍</div><div class="info-dd">最後一筆有效數據（通常為 T-1），Google Ads 數據通常延遲一日</div>
       </div>
       <div class="info-h3">若數據未更新</div>
-      <p class="info-p">請通知負責人確認排程是否正常執行，或等到下一個工作日更新。</p>
+      <p class="info-p">標題列會顯示「資料截至 ⋯」；若落後超過 2 天，頁面頂端會出現紅色警示橫幅。看到警示時請通知負責人，最常見原因是那台負責執行的 Mac 上 <strong>Google Drive 應用程式沒有執行</strong>（例如重開機後未自動啟動），導致來源 CSV 停止同步。</p>
     </div>
 
   </div><!-- /pane-info -->
@@ -799,10 +807,36 @@ function render() {
       };
     });
 
-    // Update header timestamp
+    // Header freshness. What matters is how old the DATA is, not when the
+    // pipeline last ran — a pipeline that runs daily on frozen CSVs still
+    // looks "fresh" if you only show generated_at (that is how 2026-07-16
+    // went unnoticed for 11 days).
+    const latestDate = DATES.length ? DATES[DATES.length - 1] : null;
+    const STALE_AFTER_DAYS = 2;  // data is T-1 by design; 3+ days behind is a fault
+    if (latestDate) {
+      const dayMs = 86400000;
+      const today = new Date().setHours(0, 0, 0, 0);
+      const daysBehind = Math.round((today - new Date(latestDate + 'T00:00:00')) / dayMs);
+      document.getElementById('dataThrough').textContent =
+        '資料截至 ' + latestDate + '（T-' + daysBehind + '）';
+      if (daysBehind > STALE_AFTER_DAYS) {
+        document.getElementById('liveDot').classList.add('stale');
+        notice.className = 'notice stale';
+        notice.textContent =
+          '⚠ 資料已停止更新 ' + daysBehind + ' 天，最新僅到 ' + latestDate +
+          '。以下圖表非近期數據，請勿據此判讀成效。' +
+          '排查：確認 Google Drive 應用程式正在執行且 gads-af-sync 已同步，' +
+          '再執行 run_pipeline.sh manual。';
+        notice.style.display = 'block';
+      }
+    }
     if (DATA.generated_at) {
-      const ts = DATA.generated_at.replace('T', ' ').slice(0, 16);
-      document.getElementById('lastUpdate').textContent = '最後更新：' + ts;
+      // generated_at is stored in UTC; show Taiwan time so it matches the reader's clock
+      const tpe = new Date(DATA.generated_at).toLocaleString('zh-TW', {
+        timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      });
+      document.getElementById('lastUpdate').textContent = '· 最後更新 ' + tpe;
     }
 
     // Populate campaign dropdown
