@@ -115,10 +115,10 @@ body {
   appearance: auto;
 }
 
-/* ── Metric Cards — max 4 ── */
+/* ── Metric Cards — 6 cards in a 3x2 grid ── */
 .cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: #E2E8F0;
   border: 1px solid #E2E8F0;
@@ -305,6 +305,44 @@ body {
   margin-left: 4px;
 }
 
+/* ── Date range filter ── */
+.flt-date {
+  font: inherit;
+  font-size: 13px;
+  color: #111827;
+  padding: 5px 8px;
+  border: 1px solid #D6D3D1;
+  border-radius: 5px;
+  background: #FFFFFF;
+}
+.flt-date:focus { outline: 2px solid #2563EB; outline-offset: -1px; }
+.flt-sep { color: #A8A29E; font-size: 13px; padding: 0 2px; }
+.flt-presets { display: inline-flex; gap: 4px; margin-left: 4px; }
+.flt-preset {
+  font: inherit;
+  font-size: 12px;
+  color: #57534E;
+  padding: 5px 9px;
+  border: 1px solid #D6D3D1;
+  border-radius: 5px;
+  background: #FFFFFF;
+  cursor: pointer;
+}
+.flt-preset:hover { background: #F5F5F4; }
+.flt-preset.on { background: #1C1917; border-color: #1C1917; color: #FFFFFF; }
+.flt-err {
+  font-size: 12px;
+  color: #881337;
+  margin-top: 6px;
+  flex-basis: 100%;
+}
+.empty-note {
+  font-size: 13px;
+  color: #9CA3AF;
+  padding: 24px 0;
+  text-align: center;
+}
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   body { padding: 20px 16px; }
@@ -315,6 +353,8 @@ body {
   .section { padding: 16px 16px; }
   .flt { gap: 10px; }
   .lgd { margin-top: 4px; }
+  .flt-presets { margin-left: 0; }
+  .flt-date { padding: 5px 6px; }
 }
 
 /* ── Tabs ── */
@@ -378,7 +418,19 @@ body {
   <div class="flt">
     <div class="flt-grp"><label>地區</label><select id="fGeo" onchange="render()"><option value="all">全部</option><option value="TW">TW</option><option value="HK">HK</option></select></div>
     <div class="flt-grp"><label>Campaign</label><select id="fCamp" onchange="render()"><option value="all">全部</option></select></div>
-    <div class="flt-grp"><label>期間</label><select id="fDays" onchange="render()"><option value="30">近 30 天</option><option value="60">近 60 天</option><option value="90">近 90 天</option><option value="0">全部</option></select></div>
+    <div class="flt-grp">
+      <label>期間</label>
+      <input type="date" id="fFrom" class="flt-date" onchange="onDateChange()">
+      <span class="flt-sep">~</span>
+      <input type="date" id="fTo" class="flt-date" onchange="onDateChange()">
+      <span class="flt-presets">
+        <button type="button" class="flt-preset" data-days="30" onclick="setPreset(30)">近 30 天</button>
+        <button type="button" class="flt-preset" data-days="60" onclick="setPreset(60)">近 60 天</button>
+        <button type="button" class="flt-preset" data-days="90" onclick="setPreset(90)">近 90 天</button>
+        <button type="button" class="flt-preset" data-days="0"  onclick="setPreset(0)">全部</button>
+      </span>
+    </div>
+    <div id="fltErr" class="flt-err" style="display:none"></div>
   </div>
 
   <div class="cards" id="cards"></div>
@@ -387,11 +439,12 @@ body {
     <div class="section-head">
       <div>
         <div class="section-title">每日安裝數</div>
-        <div class="section-sub">Google ICM 通常高於 AF SSOT，屬歸因模型差異，觀察走勢是否同步即可</div>
+        <div class="section-sub">三個來源各自認列，數字本就不會相同，重點是走勢有沒有同步；綠線斷開代表行銷後台當天沒給資料，不是安裝掉到 0</div>
       </div>
       <div class="lgd">
         <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads</div>
         <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF SSOT</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>行銷後台</div>
         <div class="lgd-i"><span style="display:inline-block;width:14px;border-top:1.5px dashed rgba(37,99,235,.45)"></span>7 日均線</div>
       </div>
     </div>
@@ -402,11 +455,12 @@ body {
     <div class="section-head">
       <div>
         <div class="section-title">每次安裝成本（CPI）</div>
-        <div class="section-sub">兩者共用 Google Ads 花費，差異僅來自各自計算的安裝數量</div>
+        <div class="section-sub">三者共用同一筆 Google Ads 花費，差異僅來自各自認列的安裝數量</div>
       </div>
       <div class="lgd">
         <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google CPI</div>
         <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF CPI</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>行銷後台 CPI</div>
       </div>
     </div>
     <canvas id="cCPI" height="125"></canvas>
@@ -423,9 +477,11 @@ body {
           <th>地區</th>
           <th class="r">Google 安裝</th>
           <th class="r">AF 安裝</th>
+          <th class="r">行銷後台安裝</th>
           <th class="r">安裝差異</th>
           <th class="r">Google CPI</th>
           <th class="r">AF CPI</th>
+          <th class="r">行銷後台 CPI</th>
           <th class="r">CPI 差異</th>
         </tr></thead>
         <tbody id="campTbl"></tbody>
@@ -464,21 +520,23 @@ body {
       <div class="info-dl">
         <div class="info-dt">地區</div><div class="info-dd">切換台灣（TW）、香港（HK）或全部市場的數據</div>
         <div class="info-dt">Campaign</div><div class="info-dd">選取特定投放活動，預設顯示全部加總</div>
-        <div class="info-dt">期間</div><div class="info-dd">近 30 天 / 近 60 天 / 近 90 天 / 全部</div>
+        <div class="info-dt">期間</div><div class="info-dd">自行指定<strong>起訖日期</strong>，或按快選鈕（近 30／60／90 天、全部）。此篩選<strong>整頁通用</strong>——卡片、兩張圖、明細表、熱點圖都會一起變動，所以畫面上的數字永遠對得起來。可選範圍以現有資料的頭尾日為限；起日晚於訖日會出現提示，不會白屏</div>
       </div>
       <div class="info-h3">數據卡片</div>
       <div class="info-dl">
         <div class="info-dt">Google 安裝</div><div class="info-dd">選定期間內 Google Ads 後台回報的安裝總數</div>
         <div class="info-dt">AF 安裝</div><div class="info-dd">選定期間內 AppsFlyer SSOT 歸因的安裝總數</div>
-        <div class="info-dt">安裝差異率</div><div class="info-dd">Google 比 AF 多出的比例，屬正常歸因差異，觀察走勢為主</div>
+        <div class="info-dt">行銷後台安裝</div><div class="info-dd">選定期間內<strong>公司行銷後台</strong>認列的 Google 管道安裝總數。期間內若完全沒有資料，顯示「—」而不是 0</div>
+        <div class="info-dt">安裝差異率</div><div class="info-dd">（Google − 行銷後台）÷ Google，即 Google 比行銷後台多出的比例</div>
+        <div class="info-dt">安裝差異率（AF）</div><div class="info-dd">Google 比 AF 多出的比例，屬正常歸因差異，觀察走勢為主</div>
         <div class="info-dt">CPI 差異</div><div class="info-dd">AF 計算出的 CPI 比 Google CPI 高出的比例</div>
       </div>
       <div class="info-h3">圖表與表格</div>
       <div class="info-dl">
-        <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads 安裝、橙線 = AF 安裝、灰虛線 = 7 日移動平均</div>
-        <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">兩者共用同一筆花費，差異來自各自計算的安裝數量</div>
-        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動安裝數與 CPI 對比，差異欄以純文字顯示；安裝數為 0 的活動不顯示</div>
-        <div class="info-dt">Campaign 走勢熱點圖</div><div class="info-dd">每格為當日走勢背離程度（pp）：各來源比前一天漲跌幅之差的絕對值。顏色越深代表當天兩邊走勢差異越大</div>
+        <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads、橙線 = AF SSOT、<strong>綠線 = 行銷後台</strong>，虛線為各自的 7 日移動平均。<strong>綠線中斷代表行銷後台當天沒有提供資料，不是安裝數掉到 0</strong>——這兩件事意義完全不同，請勿據此判讀成效</div>
+        <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">三者共用同一筆 Google Ads 花費，差異只來自各自認列的安裝數量。行銷後台 CPI ＝ 花費 ÷ 行銷後台安裝數</div>
+        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動三個來源的安裝數與 CPI 對比，差異欄以純文字顯示；三個來源都是 0 的活動不顯示。行銷後台無資料的欄位顯示「—」；數字後面帶 <strong>*</strong> 代表期間內有幾天缺資料，滑鼠移上去會顯示實際天數（例如「24/30 天有資料」）。此時該活動的行銷後台 CPI 只用<strong>同樣那幾天</strong>的花費計算，避免缺天數把 CPI 灌高</div>
+        <div class="info-dt">Campaign 走勢熱點圖</div><div class="info-dd">每格為當日走勢背離程度（pp）：各來源比前一天漲跌幅之差的絕對值。顏色越深代表當天兩邊走勢差異越大。<strong>此圖目前仍只比較 Google 與 AF 兩方</strong>，尚未納入行銷後台</div>
         <div class="info-dt">SDK 升級紀錄</div><div class="info-dd">AppsFlyer SDK 版本更新時間點，可對照數據是否有異常波動</div>
       </div>
     </div>
@@ -489,7 +547,14 @@ body {
       <div class="info-dl">
         <div class="info-dt">Google ICM</div><div class="info-dd">Google Ads 內部歸因模型（In-Channel Measurement），包含 view-through attribution，數字通常偏高</div>
         <div class="info-dt">AF SSOT</div><div class="info-dd">AppsFlyer Single Source of Truth，跨媒體去重後的歸因結果，通常低於 Google</div>
+        <div class="info-dt">行銷後台</div><div class="info-dd">公司自有行銷後台認列的 Google 管道安裝數，是獨立於前兩者的<strong>第三個來源</strong>。資料與 AF SSOT 由同一份匯出檔提供（<code>af_ssot.csv</code> 的 <code>mkt_installs</code> 欄），依日期與 campaign 對應</div>
       </div>
+      <div class="info-h3">為什麼會有第三條線</div>
+      <p class="info-p">三個來源分別代表「媒體端說的」（Google Ads）、「歸因工具說的」（AF SSOT）與「自家帳說的」（行銷後台）。三方同框才能判斷落差究竟出在歸因模型差異，還是內部認列邏輯。數字本來就不會完全相同，重點在於<strong>走勢是否同步</strong>；某一條線單獨偏離時，問題多半就出在那個來源。</p>
+      <div class="info-h3">整天算不算數：全有或全無</div>
+      <p class="info-p">某天若有 4 支活動在跑，行銷後台只回報其中 3 支，系統會把<strong>整天視為資料不完整而斷線</strong>，不會只把那 3 支加起來。原因是：少掉一支大活動的加總會畫出一個看起來很像「量崩了」的深谷，比直接留白更危險。所以規則是全有或全無——當天在跑的活動全部都有數字才計入。也因此，篩選單一活動或單一地區時，可用天數通常會比「全部」時更多。</p>
+      <div class="info-h3">空白與 0 的差別</div>
+      <p class="info-p">行銷後台某天沒有提供資料時，系統記錄為<strong>空值</strong>而非 0：圖上斷線、表格與卡片顯示「—」。若真的是當天零安裝，才會顯示 0 並把線畫到底。這個區分是刻意保留的，避免把「沒資料」誤讀成「量掉光了」。</p>
       <div class="info-h3">走勢背離程度（pp）</div>
       <p class="info-p">pp（percentage points，百分點）是衡量兩個來源「走勢差多少」的單位。例如 AF 今日比昨日漲 20%、Google 漲 15%，兩邊差 5pp。數字越小代表兩邊越同步；數字突然拉大，建議確認是否有 SDK 版本更新或歸因異常。</p>
       <div class="info-h3">常見原因</div>
@@ -500,7 +565,7 @@ body {
       <div class="info-h2">排程更新</div>
       <div class="info-dl">
         <div class="info-dt">更新時間</div><div class="info-dd">每日 <strong>13:30（台灣時間）起每 30 分鐘嘗試一次</strong>，當日第一次成功後即停止重試；來源 CSV 約 12:40 產出</div>
-        <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer SSOT CSV，同步至 Google Drive 後由系統讀取</div>
+        <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer SSOT CSV（含行銷後台安裝數欄位），同步至 Google Drive 後由系統讀取</div>
         <div class="info-dt">網頁生效</div><div class="info-dd">Pipeline 完成後約 <strong>1–2 分鐘</strong>，重新整理頁面即可看到最新數據</div>
         <div class="info-dt">顯示範圍</div><div class="info-dd">最後一筆有效數據（通常為 T-1），Google Ads 數據通常延遲一日</div>
       </div>
@@ -573,6 +638,65 @@ function ma7(a) {
   });
 }
 
+// ── null-safe variants, for 行銷後台 ──────────────────────────────────────
+// 行銷後台 may simply not report on a given day. That is NOT zero installs, so
+// these keep null instead of coercing it — Chart.js then breaks the line and
+// the reader sees "no data" rather than a fake crash to the floor.
+
+// Total 行銷後台 installs for one day across the selected campaigns.
+//
+// A partial day is WORSE than no day. If four campaigns were running and only
+// the three small ones reported, summing them draws a plunge that looks exactly
+// like a real collapse in volume — the very misreading the gap rule exists to
+// prevent. So the rule is all-or-nothing: every campaign that was actually
+// running that day must have a figure, otherwise the day is a gap.
+//
+// Campaigns that were not running at all that day are simply not part of the
+// question, so they never make a day incomplete.
+function mktDay(d, fc) {
+  let sum = null;
+  for (const c of fc) {
+    const r = RAW[d]?.[c.id];
+    if (!r || !r.hasRow) continue;     // not running -> not applicable
+    if (r.mi == null) return null;     // running but unreported -> incomplete
+    sum = (sum == null ? 0 : sum) + r.mi;
+  }
+  return sum;
+}
+
+// 7-day moving average that ignores gaps. Returns null only when the whole
+// window is empty, so a short gap does not wipe out the trend line.
+// A value with gaps on BOTH sides draws no line segment, and with pointRadius 0
+// it renders as nothing at all — data present, but invisible. Give those lone
+// days a dot so they still show up.
+function isolatedPointRadius(arr) {
+  return ctx => {
+    const i = ctx.dataIndex, v = arr[i];
+    if (v == null) return 0;
+    const prev = i > 0 ? arr[i-1] : null;
+    const next = i < arr.length - 1 ? arr[i+1] : null;
+    return (prev == null && next == null) ? 2.5 : 0;
+  };
+}
+
+function ma7Null(a) {
+  return a.map((_, i) => {
+    const sl = a.slice(Math.max(0, i-6), i+1).filter(v => v != null);
+    return sl.length ? Math.round(sl.reduce((x,y) => x+y, 0) / sl.length) : null;
+  });
+}
+
+// Period total over the daily series. null (not 0) when no day in the period is
+// usable, so the cards show "—" rather than a misleading 0.
+function totalNull(arr) {
+  let sum = null;
+  for (const v of arr) {
+    if (v == null) continue;
+    sum = (sum == null ? 0 : sum) + v;
+  }
+  return sum;
+}
+
 function fmt(n) { return n.toLocaleString('zh-TW'); }
 
 function wineShade(pct) {
@@ -622,29 +746,102 @@ function renderHeatmap(fc, fd) {
   </table></div>`;
 }
 
+// ── Date range control ────────────────────────────────────────────────────
+// Replaces the old fixed 30/60/90 dropdown. The range drives the WHOLE page —
+// cards, both charts, the table and the heatmap all read the same `fd`, so the
+// numbers on screen can never disagree with each other.
+
+function setPreset(days) {
+  if (!DATES.length) return;
+  const last = DATES[DATES.length - 1];
+  const first = days > 0 ? (DATES.slice(-days)[0] || DATES[0]) : DATES[0];
+  document.getElementById('fFrom').value = first;
+  document.getElementById('fTo').value   = last;
+  render();
+}
+
+function onDateChange() { render(); }
+
+// Highlight whichever preset matches the current range (none, if custom).
+function syncPresetButtons(from, to) {
+  const last = DATES[DATES.length - 1];
+  document.querySelectorAll('.flt-preset').forEach(b => {
+    const d = parseInt(b.dataset.days);
+    const expFirst = d > 0 ? (DATES.slice(-d)[0] || DATES[0]) : DATES[0];
+    b.classList.toggle('on', to === last && from === expFirst);
+  });
+}
+
+// Blank out every panel when the chosen range holds nothing, so stale numbers
+// from the previous range can never sit next to an empty chart.
+function renderEmpty() {
+  if (chI) { chI.destroy(); chI = null; }
+  if (chC) { chC.destroy(); chC = null; }
+  document.getElementById('cards').innerHTML = '';
+  document.getElementById('campTbl').innerHTML =
+    '<tr><td colspan="10" class="empty-note">此區間無資料</td></tr>';
+  document.getElementById('hmContainer').innerHTML =
+    '<p class="empty-note">此區間無資料</p>';
+}
+
 function render() {
   const geo  = document.getElementById('fGeo').value;
   const camp = document.getElementById('fCamp').value;
-  const days = parseInt(document.getElementById('fDays').value) || 9999;
+  const from = document.getElementById('fFrom').value;
+  const to   = document.getElementById('fTo').value;
 
   const fc = CAMPS.filter(c =>
     (geo === 'all' || c.geo === geo) &&
     (camp === 'all' || c.id === camp)
   );
-  const fd = days > 0 ? DATES.slice(-days) : DATES;
+
+  // Guard the range BEFORE any charting: an inverted or empty range used to
+  // hand Chart.js empty arrays, which renders a blank white box with no clue
+  // as to why. Say what is wrong instead.
+  const errEl = document.getElementById('fltErr');
+  let fd = DATES.filter(d => (!from || d >= from) && (!to || d <= to));
+  if (from && to && from > to) {
+    errEl.textContent = '起日晚於訖日，請調整日期範圍。';
+    errEl.style.display = 'block';
+    fd = [];
+  } else if (!fd.length) {
+    errEl.textContent = '此區間沒有資料（資料範圍：' +
+      (DATES[0] || '—') + ' ~ ' + (DATES[DATES.length-1] || '—') + '）。';
+    errEl.style.display = 'block';
+  } else {
+    errEl.style.display = 'none';
+  }
+  syncPresetButtons(from, to);
+
+  if (!fd.length) { renderEmpty(); return; }
 
   const gD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.gi || 0), 0));
   const aD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.ai || 0), 0));
   const spD = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.sp || 0), 0));
+  // 行銷後台 keeps nulls all the way through — see mktDay().
+  const mD  = fd.map(d => mktDay(d, fc));
 
   const gCPIArr = fd.map((_, i) => gD[i] > 0 ? +(spD[i]/gD[i]).toFixed(1) : 0);
   const aCPIArr = fd.map((_, i) => aD[i] > 0 ? +(spD[i]/aD[i]).toFixed(1) : 0);
+  const mCPIArr = fd.map((_, i) => (mD[i] != null && mD[i] > 0)
+                                     ? +(spD[i]/mD[i]).toFixed(1) : null);
   const lbls    = fd.map(d => d.slice(5));
 
   const tG  = gD.reduce((a,b) => a+b, 0);
   const tA  = aD.reduce((a,b) => a+b, 0);
+  const tM  = totalNull(mD);
   const tSp = spD.reduce((a,b) => a+b, 0);
 
+  // Headline divergence: 行銷後台 vs the media-reported Google number.
+  //
+  // Compared LIKE FOR LIKE. Dividing a 30-day Google total by a 25-day 行銷後台
+  // total manufactures a divergence out of the missing days alone, so Google is
+  // re-totalled over exactly the days 行銷後台 covered.
+  const mDayCount  = mD.filter(v => v != null).length;
+  const tGforM     = fd.reduce((s, _, i) => s + (mD[i] != null ? gD[i] : 0), 0);
+  const mktDiv     = (tGforM > 0 && tM != null)
+                       ? ((tGforM-tM)/tGforM*100).toFixed(1) : null;
+  const mCover     = fd.length ? mDayCount + '/' + fd.length + ' 天有資料' : '';
   const installDiv = tG > 0 ? ((tG-tA)/tG*100).toFixed(1) : '0';
   const avgGCPI    = tG > 0 ? tSp/tG : 0;
   const avgACPI    = tA > 0 ? tSp/tA : 0;
@@ -664,7 +861,19 @@ function render() {
       <div class="card-sub">期間合計</div>
     </div>
     <div class="card">
+      <div class="card-label">行銷後台安裝</div>
+      <div class="card-value">${tM == null ? '—' : fmt(tM)}</div>
+      <div class="card-sub">${tM == null ? '此區間無資料'
+          : (mDayCount === fd.length ? '期間合計' : '期間合計（' + mCover + '）')}</div>
+    </div>
+    <div class="card">
       <div class="card-label">安裝差異率</div>
+      <div class="card-value" style="color:${mktDiv == null ? '#9CA3AF' : hiColor(mktDiv)}">${mktDiv == null ? '—' : mktDiv + '%'}</div>
+      <div class="card-sub">${mktDiv == null ? '行銷後台無資料'
+          : 'Google 高於行銷後台' + (mDayCount === fd.length ? '' : '（同期 ' + mCover + '）')}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">安裝差異率（AF）</div>
       <div class="card-value" style="color:${hiColor(installDiv)}">${installDiv}%</div>
       <div class="card-sub">Google 高於 AF</div>
     </div>
@@ -690,7 +899,8 @@ function render() {
         intersect: false,
         bodyFont: fontCfg,
         titleFont: fontCfg,
-        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` }
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ` +
+          (ctx.parsed.y == null ? '無資料' : fmt(ctx.parsed.y)) }
       }
     },
     scales: {
@@ -713,8 +923,13 @@ function render() {
       datasets: [
         { label:'Google Ads',   data: gD,      borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
         { label:'AF SSOT',      data: aD,      borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        // spanGaps:false is the Chart.js default, but it is spelled out here on
+        // purpose: it is the ONLY thing making a missing 行銷後台 day read as a
+        // gap instead of a plunge to zero. Do not "tidy" it away.
+        { label:'行銷後台',     data: mD,      borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mD), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
         { label:'Google 7日均', data: ma7(gD), borderColor:'#2563EB', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
         { label:'AF 7日均',     data: ma7(aD), borderColor:'#EA580C', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
+        { label:'行銷後台 7日均', data: ma7Null(mD), borderColor:'#059669', borderWidth:1, borderDash:[5,4], pointRadius:0, tension:0.3, fill:false, spanGaps:false },
       ]
     },
     plugins: [crosshairPlugin],
@@ -722,7 +937,8 @@ function render() {
   });
 
   const cpiOpts = JSON.parse(JSON.stringify(baseOpts));
-  cpiOpts.plugins.tooltip.callbacks = { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y}` };
+  cpiOpts.plugins.tooltip.callbacks = { label: ctx => ` ${ctx.dataset.label}: ` +
+    (ctx.parsed.y == null ? '無資料' : '$' + ctx.parsed.y) };
   cpiOpts.scales.y.ticks.callback = v => '$' + v;
 
   if (chC) chC.destroy();
@@ -733,26 +949,40 @@ function render() {
       datasets: [
         { label:'Google CPI', data: gCPIArr, borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
         { label:'AF CPI',     data: aCPIArr, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'行銷後台 CPI', data: mCPIArr, borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mCPIArr), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
       ]
     },
     plugins: [crosshairPlugin],
     options: cpiOpts
   });
 
+  // Include 行銷後台 in the visibility test, otherwise a campaign that only the
+  // marketing backend knows about would be hidden entirely.
   const fcVisible = fc.filter(c =>
-    fd.some(d => (RAW[d]?.[c.id]?.gi || 0) + (RAW[d]?.[c.id]?.ai || 0) > 0)
+    fd.some(d => (RAW[d]?.[c.id]?.gi || 0) + (RAW[d]?.[c.id]?.ai || 0)
+                 + (RAW[d]?.[c.id]?.mi || 0) > 0)
   );
 
   const rows = fcVisible.map(c => {
     const g  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.gi || 0), 0);
     const a  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.ai || 0), 0);
     const sp = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.sp || 0), 0);
+    // Per-campaign 行銷後台 total, over the days this campaign was RUNNING.
+    // Its CPI uses the spend of those same days only, so cost and installs
+    // always cover the same calendar — otherwise a gap inflates the CPI.
+    const mRun = fd.filter(d => RAW[d]?.[c.id]?.hasRow);
+    const mRep = mRun.filter(d => RAW[d][c.id].mi != null);
+    const m    = mRep.length ? mRep.reduce((x, d) => x + RAW[d][c.id].mi, 0) : null;
+    const mSp  = mRep.reduce((x, d) => x + (RAW[d][c.id].sp || 0), 0);
+    const mPartial = m != null && mRep.length < mRun.length;
+    const mNote = mPartial ? `${mRep.length}/${mRun.length} 天有資料` : '';
 
-    const dv     = g > 0 ? ((g-a)/g*100).toFixed(1) : '—';
+    const dv     = g > 0 ? ((g-a)/g*100).toFixed(1) + '%' : '—';
     const gCpi   = g > 0 ? sp/g : 0;
     const afCpi  = a > 0 ? sp/a : 0;
     const gCpiS  = g > 0 ? '$' + gCpi.toFixed(1) : '—';
     const afCpiS = a > 0 ? '$' + afCpi.toFixed(1) : '—';
+    const mCpiS  = (m != null && m > 0) ? '$' + (mSp/m).toFixed(1) : '—';
     const cpiDf  = (g > 0 && a > 0) ? ((afCpi-gCpi)/gCpi*100) : null;
     const cpiDfS = cpiDf !== null ? (cpiDf >= 0 ? '+' : '') + cpiDf.toFixed(1) + '%' : '—';
 
@@ -761,9 +991,11 @@ function render() {
       <td><span class="geo-tag">${c.geo}</span></td>
       <td class="num r">${fmt(g)}</td>
       <td class="num r">${fmt(a)}</td>
-      <td class="num r">${dv}%</td>
+      <td class="num r"${mPartial ? ` title="${mNote}"` : ''}>${m == null ? '—' : fmt(m) + (mPartial ? ' *' : '')}</td>
+      <td class="num r">${dv}</td>
       <td class="num r">${gCpiS}</td>
       <td class="num r">${afCpiS}</td>
+      <td class="num r"${mPartial ? ` title="${mNote}"` : ''}>${mCpiS}</td>
       <td class="num r">${cpiDfS}</td>
     </tr>`;
   });
@@ -795,7 +1027,12 @@ function render() {
     // Init RAW with zeros then fill from rows
     DATES.forEach(d => {
       RAW[d] = {};
-      CAMPS.forEach(c => { RAW[d][c.id] = { gi: 0, ai: 0, sp: 0 }; });
+      // mi starts as null, NOT 0 — see sumNull(). A campaign/day the marketing
+      // backend never reported must stay distinguishable from a real zero.
+      // hasRow distinguishes "this campaign was not running that day" from
+      // "it was running but 行銷後台 reported nothing" — the two look identical
+      // once you only have a null, and conflating them fakes a crash.
+      CAMPS.forEach(c => { RAW[d][c.id] = { gi: 0, ai: 0, mi: null, sp: 0, hasRow: false }; });
     });
     (DATA.rows || []).forEach(r => {
       const camp = CAMPS.find(c => c.name === r.campaign);
@@ -803,7 +1040,11 @@ function render() {
       RAW[r.date][camp.id] = {
         gi: r.google_installs || 0,
         ai: r.af_installs || 0,
-        sp: r.spend || 0
+        // `?? null` on purpose: `|| 0` would turn "not reported" into a real 0
+        // and the 行銷後台 line would plunge to the floor instead of breaking.
+        mi: r.mkt_installs ?? null,
+        sp: r.spend || 0,
+        hasRow: true
       };
     });
 
@@ -851,7 +1092,18 @@ function render() {
     // Render SDK log from real data
     renderSdkLog(DATA.sdk_log || []);
 
-    render();
+    // Bound the date pickers to the data we actually hold, so the calendar
+    // cannot offer a day that would only ever come back empty.
+    if (DATES.length) {
+      const first = DATES[0], last = DATES[DATES.length - 1];
+      ['fFrom', 'fTo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.min = first; el.max = last;
+      });
+      setPreset(30);          // same default period as before; also calls render()
+    } else {
+      render();
+    }
   } catch(e) {
     if (notice) {
       notice.textContent = '⚠ 無法載入 data.json：' + e.message + '（請確認伺服器已啟動）';
