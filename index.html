@@ -439,7 +439,7 @@ body {
     <div class="section-head">
       <div>
         <div class="section-title">每日安裝數</div>
-        <div class="section-sub">三個來源各自認列，數字本就不會相同，重點是走勢有沒有同步；綠線斷開代表 AF Classic 當天沒給資料，不是安裝掉到 0。<span id="installNote" style="color:#57534E"></span></div>
+        <div class="section-sub">三個來源各自認列，數字本就不會相同，重點是走勢有沒有同步；綠線斷開代表 AF Classic 當天沒給資料，不是安裝掉到 0。<strong>最新 4～7 天右緣兩線會黏在一起，是 SKAN 尚未回填，不是趨勢收斂</strong>。<span id="installNote" style="color:#57534E"></span></div>
       </div>
       <div class="lgd">
         <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads install</div>
@@ -554,6 +554,10 @@ body {
       </div>
       <div class="info-h3">為什麼會有第三條線</div>
       <p class="info-p">三條線分別是「媒體端說的」（Google Ads install）、「AppsFlyer SSOT 口徑」（AF SSOT install）與「AppsFlyer Classic 口徑」（AF Classic install）。三者的歸因基準不同，數量級本來就不一樣——目前 Google Ads &gt; AF SSOT &gt; AF Classic，<strong>絕對值高低本身沒有對錯</strong>。真正要看的是<strong>走勢是否同步</strong>：三條線平常應該一起漲、一起跌，某一條單獨偏離時，問題多半就出在那個來源。</p>
+      <div class="info-h3">為什麼最新幾天兩條線會重疊</div>
+      <p class="info-p"><strong>AF SSOT ＝ AF Classic ＋ SKAN 歸因</strong>，而 SKAN 的回報會延遲約 <strong>4 天</strong>。所以最新 4 天的 SSOT 還沒把 SKAN 加進去，數字會與 Classic 完全相同；第 5 天起 SKAN 陸續回填，兩條線才逐漸拉開，大約第 8 天後穩定（Classic 約為 SSOT 的四到五成）。</p>
+      <p class="info-p"><strong>因此圖表最右邊 4～7 天不能拿來比較兩者差距</strong>——看起來「Classic 追上 SSOT」只是 SKAN 還沒到，不是投放或歸因有變化。要判讀 SSOT 與 Classic 的落差，請看 <strong>8 天以前</strong>的區間。同理，上方「安裝差異率」卡片若期間包含最近幾天，數字會被拉低，屬正常現象。</p>
+
       <div class="info-h3">整天算不算數：全有或全無</div>
       <p class="info-p">某天若有 4 支活動在跑，AF Classic 只回報其中 3 支，系統會把<strong>整天視為資料不完整而斷線</strong>，不會只把那 3 支加起來。原因是：少掉一支大活動的加總會畫出一個看起來很像「量崩了」的深谷，比直接留白更危險。所以規則是全有或全無——當天在跑的活動全部都有數字才計入。也因此，篩選單一活動或單一地區時，可用天數通常會比「全部」時更多。</p>
       <div class="info-h3">空白與 0 的差別</div>
