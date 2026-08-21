@@ -550,10 +550,10 @@ body {
       <div class="info-dl">
         <div class="info-dt">Google Ads install</div><div class="info-dd">Google Ads 後台以其內部歸因模型 ICM（In-Channel Measurement）認列的安裝數，包含 view-through attribution，數字通常偏高</div>
         <div class="info-dt">AF SSOT install</div><div class="info-dd">AppsFlyer Single Source of Truth，與媒體端對帳去重後的歸因結果，通常低於 Google Ads</div>
-        <div class="info-dt">AF Classic install</div><div class="info-dd">AppsFlyer <strong>Classic</strong>（傳統歸因）認列的安裝數。與 AF SSOT 出自同一套 AppsFlyer，差別在於 SSOT 會與媒體端對帳去重、Classic 不會，因此 Classic 通常高於 SSOT。依日期與 campaign 對應；欄位可放在 <code>af_ssot.csv</code>（欄名 <code>mkt_install</code> 或 <code>mkt_installs</code> 皆可），或同資料夾中獨立的 <code>mkt_backend.csv</code>，兩者並存時以 <code>af_ssot.csv</code> 為準</div>
+        <div class="info-dt">AF Classic install</div><div class="info-dd">AppsFlyer <strong>Classic</strong>（傳統歸因）認列的安裝數，與 AF SSOT 出自同一套 AppsFlyer，但採用不同的歸因基準。<strong>實際資料上 Classic 明顯低於 SSOT</strong>（目前約為 SSOT 的三成），因此請勿把兩者當成同一口徑的數字直接相減，重點看各自的走勢。依日期與 campaign 對應；欄位可放在 <code>af_ssot.csv</code>（欄名 <code>mkt_install</code> 或 <code>mkt_installs</code> 皆可），或同資料夾中獨立的 <code>mkt_backend.csv</code>，兩者並存時以 <code>af_ssot.csv</code> 為準</div>
       </div>
       <div class="info-h3">為什麼會有第三條線</div>
-      <p class="info-p">三條線分別是「媒體端說的」（Google Ads install）、「歸因工具去重後說的」（AF SSOT install）與「歸因工具未去重說的」（AF Classic install）。三方同框，才能看出落差究竟來自 Google 與 AppsFlyer 的歸因模型差異，還是來自 SSOT 去重本身。數字本來就不會完全相同，重點在於<strong>走勢是否同步</strong>；某一條線單獨偏離時，問題多半就出在那個來源。</p>
+      <p class="info-p">三條線分別是「媒體端說的」（Google Ads install）、「AppsFlyer SSOT 口徑」（AF SSOT install）與「AppsFlyer Classic 口徑」（AF Classic install）。三者的歸因基準不同，數量級本來就不一樣——目前 Google Ads &gt; AF SSOT &gt; AF Classic，<strong>絕對值高低本身沒有對錯</strong>。真正要看的是<strong>走勢是否同步</strong>：三條線平常應該一起漲、一起跌，某一條單獨偏離時，問題多半就出在那個來源。</p>
       <div class="info-h3">整天算不算數：全有或全無</div>
       <p class="info-p">某天若有 4 支活動在跑，AF Classic 只回報其中 3 支，系統會把<strong>整天視為資料不完整而斷線</strong>，不會只把那 3 支加起來。原因是：少掉一支大活動的加總會畫出一個看起來很像「量崩了」的深谷，比直接留白更危險。所以規則是全有或全無——當天在跑的活動全部都有數字才計入。也因此，篩選單一活動或單一地區時，可用天數通常會比「全部」時更多。</p>
       <div class="info-h3">空白與 0 的差別</div>
