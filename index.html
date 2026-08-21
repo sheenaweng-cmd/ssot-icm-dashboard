@@ -439,13 +439,16 @@ body {
     <div class="section-head">
       <div>
         <div class="section-title">每日安裝數</div>
-        <div class="section-sub">三個來源各自認列，數字本就不會相同，重點是走勢有沒有同步；綠線斷開代表行銷後台當天沒給資料，不是安裝掉到 0</div>
+        <div class="section-sub">三個來源各自認列，數字本就不會相同，重點是走勢有沒有同步；綠線斷開代表 AF Classic 當天沒給資料，不是安裝掉到 0。<span id="installNote" style="color:#57534E"></span></div>
       </div>
       <div class="lgd">
-        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads</div>
-        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF SSOT</div>
-        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>行銷後台</div>
-        <div class="lgd-i"><span style="display:inline-block;width:14px;border-top:1.5px dashed rgba(37,99,235,.45)"></span>7 日均線</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads install</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF SSOT install</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>AF Classic install</div>
+        <span class="flt-presets" style="margin-left:8px">
+          <button type="button" class="flt-preset on" id="maOff" onclick="setMaMode(false)">每日</button>
+          <button type="button" class="flt-preset" id="maOn" onclick="setMaMode(true)">7 日均</button>
+        </span>
       </div>
     </div>
     <canvas id="cInstall" height="155"></canvas>
@@ -458,9 +461,9 @@ body {
         <div class="section-sub">三者共用同一筆 Google Ads 花費，差異僅來自各自認列的安裝數量</div>
       </div>
       <div class="lgd">
-        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google CPI</div>
-        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF CPI</div>
-        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>行銷後台 CPI</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#2563EB"></span>Google Ads CPI</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#EA580C"></span>AF SSOT CPI</div>
+        <div class="lgd-i"><span class="lgd-ln" style="background:#059669"></span>AF Classic CPI</div>
       </div>
     </div>
     <canvas id="cCPI" height="125"></canvas>
@@ -475,13 +478,13 @@ body {
         <thead><tr>
           <th>Campaign</th>
           <th>地區</th>
-          <th class="r">Google 安裝</th>
-          <th class="r">AF 安裝</th>
-          <th class="r">行銷後台安裝</th>
+          <th class="r">Google Ads install</th>
+          <th class="r">AF SSOT install</th>
+          <th class="r">AF Classic install</th>
           <th class="r">安裝差異</th>
-          <th class="r">Google CPI</th>
-          <th class="r">AF CPI</th>
-          <th class="r">行銷後台 CPI</th>
+          <th class="r">Google Ads CPI</th>
+          <th class="r">AF SSOT CPI</th>
+          <th class="r">AF Classic CPI</th>
           <th class="r">CPI 差異</th>
         </tr></thead>
         <tbody id="campTbl"></tbody>
@@ -526,17 +529,17 @@ body {
       <div class="info-dl">
         <div class="info-dt">Google 安裝</div><div class="info-dd">選定期間內 Google Ads 後台回報的安裝總數</div>
         <div class="info-dt">AF 安裝</div><div class="info-dd">選定期間內 AppsFlyer SSOT 歸因的安裝總數</div>
-        <div class="info-dt">行銷後台安裝</div><div class="info-dd">選定期間內<strong>公司行銷後台</strong>認列的 Google 管道安裝總數。期間內若完全沒有資料，顯示「—」而不是 0</div>
-        <div class="info-dt">安裝差異率</div><div class="info-dd">（Google − 行銷後台）÷ Google，即 Google 比行銷後台多出的比例</div>
-        <div class="info-dt">安裝差異率（AF）</div><div class="info-dd">Google 比 AF 多出的比例，屬正常歸因差異，觀察走勢為主</div>
+        <div class="info-dt">AF Classic install</div><div class="info-dd">選定期間內 <strong>AppsFlyer Classic</strong>（傳統歸因，未做 SSOT 去重）認列的安裝總數。期間內若完全沒有資料，顯示「—」而不是 0</div>
+        <div class="info-dt">安裝差異率</div><div class="info-dd">（Google Ads − AF Classic）÷ Google Ads，即 Google Ads 比 AF Classic 多出的比例</div>
+        <div class="info-dt">安裝差異率（SSOT）</div><div class="info-dd">Google Ads 比 AF SSOT 多出的比例，屬正常歸因差異，觀察走勢為主</div>
         <div class="info-dt">CPI 差異</div><div class="info-dd">AF 計算出的 CPI 比 Google CPI 高出的比例</div>
       </div>
       <div class="info-h3">圖表與表格</div>
       <div class="info-dl">
-        <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads、橙線 = AF SSOT、<strong>綠線 = 行銷後台</strong>，虛線為各自的 7 日移動平均。<strong>綠線中斷代表行銷後台當天沒有提供資料，不是安裝數掉到 0</strong>——這兩件事意義完全不同，請勿據此判讀成效</div>
-        <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">三者共用同一筆 Google Ads 花費，差異只來自各自認列的安裝數量。行銷後台 CPI ＝ 花費 ÷ 行銷後台安裝數</div>
-        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動三個來源的安裝數與 CPI 對比，差異欄以純文字顯示；三個來源都是 0 的活動不顯示。行銷後台無資料的欄位顯示「—」；數字後面帶 <strong>*</strong> 代表期間內有幾天缺資料，滑鼠移上去會顯示實際天數（例如「24/30 天有資料」）。此時該活動的行銷後台 CPI 只用<strong>同樣那幾天</strong>的花費計算，避免缺天數把 CPI 灌高</div>
-        <div class="info-dt">Campaign 走勢熱點圖</div><div class="info-dd">每格為當日走勢背離程度（pp）：各來源比前一天漲跌幅之差的絕對值。顏色越深代表當天兩邊走勢差異越大。<strong>此圖目前仍只比較 Google 與 AF 兩方</strong>，尚未納入行銷後台</div>
+        <div class="info-dt">每日安裝數</div><div class="info-dd">藍線 = Google Ads install、橙線 = AF SSOT install、<strong>綠線 = AF Classic install</strong>。右上角可切換<strong>每日</strong>與 <strong>7 日均</strong>兩種檢視，圖上永遠只有三條線；預設為每日。<strong>綠線中斷代表 AF Classic 當天沒有提供資料，不是安裝數掉到 0</strong>——這兩件事意義完全不同，請勿據此判讀成效</div>
+        <div class="info-dt">每次安裝成本（CPI）</div><div class="info-dd">三者共用同一筆 Google Ads 花費，差異只來自各自認列的安裝數量。AF Classic CPI ＝ 花費 ÷ AF Classic install</div>
+        <div class="info-dt">Campaign 明細</div><div class="info-dd">各活動三個來源的 install 與 CPI 對比，差異欄以純文字顯示；三個來源都是 0 的活動不顯示。AF Classic無資料的欄位顯示「—」；數字後面帶 <strong>*</strong> 代表期間內有幾天缺資料，滑鼠移上去會顯示實際天數（例如「24/30 天有資料」）。此時該活動的AF Classic CPI 只用<strong>同樣那幾天</strong>的花費計算，避免缺天數把 CPI 灌高</div>
+        <div class="info-dt">Campaign 走勢熱點圖</div><div class="info-dd">每格為當日走勢背離程度（pp）：各來源比前一天漲跌幅之差的絕對值。顏色越深代表當天兩邊走勢差異越大。<strong>此圖目前仍只比較 Google Ads 與 AF SSOT 兩方</strong>，尚未納入 AF Classic</div>
         <div class="info-dt">SDK 升級紀錄</div><div class="info-dd">AppsFlyer SDK 版本更新時間點，可對照數據是否有異常波動</div>
       </div>
     </div>
@@ -545,16 +548,16 @@ body {
       <div class="info-h2">定義說明</div>
       <div class="info-h3">安裝來源</div>
       <div class="info-dl">
-        <div class="info-dt">Google ICM</div><div class="info-dd">Google Ads 內部歸因模型（In-Channel Measurement），包含 view-through attribution，數字通常偏高</div>
-        <div class="info-dt">AF SSOT</div><div class="info-dd">AppsFlyer Single Source of Truth，跨媒體去重後的歸因結果，通常低於 Google</div>
-        <div class="info-dt">行銷後台</div><div class="info-dd">公司自有行銷後台認列的 Google 管道安裝數，是獨立於前兩者的<strong>第三個來源</strong>。資料與 AF SSOT 由同一份匯出檔提供（<code>af_ssot.csv</code> 的 <code>mkt_installs</code> 欄），依日期與 campaign 對應</div>
+        <div class="info-dt">Google Ads install</div><div class="info-dd">Google Ads 後台以其內部歸因模型 ICM（In-Channel Measurement）認列的安裝數，包含 view-through attribution，數字通常偏高</div>
+        <div class="info-dt">AF SSOT install</div><div class="info-dd">AppsFlyer Single Source of Truth，與媒體端對帳去重後的歸因結果，通常低於 Google Ads</div>
+        <div class="info-dt">AF Classic install</div><div class="info-dd">AppsFlyer <strong>Classic</strong>（傳統歸因）認列的安裝數。與 AF SSOT 出自同一套 AppsFlyer，差別在於 SSOT 會與媒體端對帳去重、Classic 不會，因此 Classic 通常高於 SSOT。依日期與 campaign 對應；欄位可放在 <code>af_ssot.csv</code>（欄名 <code>mkt_install</code> 或 <code>mkt_installs</code> 皆可），或同資料夾中獨立的 <code>mkt_backend.csv</code>，兩者並存時以 <code>af_ssot.csv</code> 為準</div>
       </div>
       <div class="info-h3">為什麼會有第三條線</div>
-      <p class="info-p">三個來源分別代表「媒體端說的」（Google Ads）、「歸因工具說的」（AF SSOT）與「自家帳說的」（行銷後台）。三方同框才能判斷落差究竟出在歸因模型差異，還是內部認列邏輯。數字本來就不會完全相同，重點在於<strong>走勢是否同步</strong>；某一條線單獨偏離時，問題多半就出在那個來源。</p>
+      <p class="info-p">三條線分別是「媒體端說的」（Google Ads install）、「歸因工具去重後說的」（AF SSOT install）與「歸因工具未去重說的」（AF Classic install）。三方同框，才能看出落差究竟來自 Google 與 AppsFlyer 的歸因模型差異，還是來自 SSOT 去重本身。數字本來就不會完全相同，重點在於<strong>走勢是否同步</strong>；某一條線單獨偏離時，問題多半就出在那個來源。</p>
       <div class="info-h3">整天算不算數：全有或全無</div>
-      <p class="info-p">某天若有 4 支活動在跑，行銷後台只回報其中 3 支，系統會把<strong>整天視為資料不完整而斷線</strong>，不會只把那 3 支加起來。原因是：少掉一支大活動的加總會畫出一個看起來很像「量崩了」的深谷，比直接留白更危險。所以規則是全有或全無——當天在跑的活動全部都有數字才計入。也因此，篩選單一活動或單一地區時，可用天數通常會比「全部」時更多。</p>
+      <p class="info-p">某天若有 4 支活動在跑，AF Classic 只回報其中 3 支，系統會把<strong>整天視為資料不完整而斷線</strong>，不會只把那 3 支加起來。原因是：少掉一支大活動的加總會畫出一個看起來很像「量崩了」的深谷，比直接留白更危險。所以規則是全有或全無——當天在跑的活動全部都有數字才計入。也因此，篩選單一活動或單一地區時，可用天數通常會比「全部」時更多。</p>
       <div class="info-h3">空白與 0 的差別</div>
-      <p class="info-p">行銷後台某天沒有提供資料時，系統記錄為<strong>空值</strong>而非 0：圖上斷線、表格與卡片顯示「—」。若真的是當天零安裝，才會顯示 0 並把線畫到底。這個區分是刻意保留的，避免把「沒資料」誤讀成「量掉光了」。</p>
+      <p class="info-p">AF Classic 某天沒有提供資料時，系統記錄為<strong>空值</strong>而非 0：圖上斷線、表格與卡片顯示「—」。若真的是當天零安裝，才會顯示 0 並把線畫到底。這個區分是刻意保留的，避免把「沒資料」誤讀成「量掉光了」。</p>
       <div class="info-h3">走勢背離程度（pp）</div>
       <p class="info-p">pp（percentage points，百分點）是衡量兩個來源「走勢差多少」的單位。例如 AF 今日比昨日漲 20%、Google 漲 15%，兩邊差 5pp。數字越小代表兩邊越同步；數字突然拉大，建議確認是否有 SDK 版本更新或歸因異常。</p>
       <div class="info-h3">常見原因</div>
@@ -565,7 +568,7 @@ body {
       <div class="info-h2">排程更新</div>
       <div class="info-dl">
         <div class="info-dt">更新時間</div><div class="info-dd">每日 <strong>13:30（台灣時間）起每 30 分鐘嘗試一次</strong>，當日第一次成功後即停止重試；來源 CSV 約 12:40 產出</div>
-        <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer SSOT CSV（含行銷後台安裝數欄位），同步至 Google Drive 後由系統讀取</div>
+        <div class="info-dt">資料來源</div><div class="info-dd">Google Ads 報表 + AppsFlyer CSV（SSOT 與 Classic 兩欄），同步至 Google Drive 後由系統讀取</div>
         <div class="info-dt">網頁生效</div><div class="info-dd">Pipeline 完成後約 <strong>1–2 分鐘</strong>，重新整理頁面即可看到最新數據</div>
         <div class="info-dt">顯示範圍</div><div class="info-dd">最後一筆有效數據（通常為 T-1），Google Ads 數據通常延遲一日</div>
       </div>
@@ -585,6 +588,17 @@ function switchTab(name, btn) {
 }
 
 let CAMPS = [], DATES = [], RAW = {}, chI = null, chC = null;
+
+// false = raw daily values, true = 7-day moving average. Only ever one of the
+// two is on screen, so the install chart holds three lines at most.
+let maMode = false;
+
+function setMaMode(on) {
+  maMode = on;
+  document.getElementById('maOff').classList.toggle('on', !on);
+  document.getElementById('maOn').classList.toggle('on', on);
+  render();
+}
 
 const crosshairPlugin = {
   id: 'crosshair',
@@ -638,12 +652,12 @@ function ma7(a) {
   });
 }
 
-// ── null-safe variants, for 行銷後台 ──────────────────────────────────────
-// 行銷後台 may simply not report on a given day. That is NOT zero installs, so
+// ── null-safe variants, for AF Classic ──────────────────────────────────────
+// AF Classic may simply not report on a given day. That is NOT zero installs, so
 // these keep null instead of coercing it — Chart.js then breaks the line and
 // the reader sees "no data" rather than a fake crash to the floor.
 
-// Total 行銷後台 installs for one day across the selected campaigns.
+// Total AF Classic installs for one day across the selected campaigns.
 //
 // A partial day is WORSE than no day. If four campaigns were running and only
 // the three small ones reported, summing them draws a plunge that looks exactly
@@ -765,7 +779,9 @@ function onDateChange() { render(); }
 // Highlight whichever preset matches the current range (none, if custom).
 function syncPresetButtons(from, to) {
   const last = DATES[DATES.length - 1];
-  document.querySelectorAll('.flt-preset').forEach(b => {
+  // [data-days] scopes this to the DATE presets. The 每日 / 7 日均 buttons reuse
+  // the same class for styling, and an unscoped selector wiped their state.
+  document.querySelectorAll('.flt-preset[data-days]').forEach(b => {
     const d = parseInt(b.dataset.days);
     const expFirst = d > 0 ? (DATES.slice(-d)[0] || DATES[0]) : DATES[0];
     b.classList.toggle('on', to === last && from === expFirst);
@@ -818,7 +834,7 @@ function render() {
   const gD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.gi || 0), 0));
   const aD  = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.ai || 0), 0));
   const spD = fd.map(d => fc.reduce((s, c) => s + (RAW[d]?.[c.id]?.sp || 0), 0));
-  // 行銷後台 keeps nulls all the way through — see mktDay().
+  // AF Classic keeps nulls all the way through — see mktDay().
   const mD  = fd.map(d => mktDay(d, fc));
 
   const gCPIArr = fd.map((_, i) => gD[i] > 0 ? +(spD[i]/gD[i]).toFixed(1) : 0);
@@ -832,11 +848,11 @@ function render() {
   const tM  = totalNull(mD);
   const tSp = spD.reduce((a,b) => a+b, 0);
 
-  // Headline divergence: 行銷後台 vs the media-reported Google number.
+  // Headline divergence: AF Classic vs the media-reported Google number.
   //
-  // Compared LIKE FOR LIKE. Dividing a 30-day Google total by a 25-day 行銷後台
+  // Compared LIKE FOR LIKE. Dividing a 30-day Google total by a 25-day AF Classic
   // total manufactures a divergence out of the missing days alone, so Google is
-  // re-totalled over exactly the days 行銷後台 covered.
+  // re-totalled over exactly the days AF Classic covered.
   const mDayCount  = mD.filter(v => v != null).length;
   const tGforM     = fd.reduce((s, _, i) => s + (mD[i] != null ? gD[i] : 0), 0);
   const mktDiv     = (tGforM > 0 && tM != null)
@@ -851,17 +867,17 @@ function render() {
 
   document.getElementById('cards').innerHTML = `
     <div class="card">
-      <div class="card-label">Google 安裝</div>
+      <div class="card-label">Google Ads install</div>
       <div class="card-value">${fmt(tG)}</div>
       <div class="card-sub">期間合計</div>
     </div>
     <div class="card">
-      <div class="card-label">AF 安裝</div>
+      <div class="card-label">AF SSOT install</div>
       <div class="card-value">${fmt(tA)}</div>
       <div class="card-sub">期間合計</div>
     </div>
     <div class="card">
-      <div class="card-label">行銷後台安裝</div>
+      <div class="card-label">AF Classic install</div>
       <div class="card-value">${tM == null ? '—' : fmt(tM)}</div>
       <div class="card-sub">${tM == null ? '此區間無資料'
           : (mDayCount === fd.length ? '期間合計' : '期間合計（' + mCover + '）')}</div>
@@ -869,18 +885,18 @@ function render() {
     <div class="card">
       <div class="card-label">安裝差異率</div>
       <div class="card-value" style="color:${mktDiv == null ? '#9CA3AF' : hiColor(mktDiv)}">${mktDiv == null ? '—' : mktDiv + '%'}</div>
-      <div class="card-sub">${mktDiv == null ? '行銷後台無資料'
-          : 'Google 高於行銷後台' + (mDayCount === fd.length ? '' : '（同期 ' + mCover + '）')}</div>
+      <div class="card-sub">${mktDiv == null ? 'AF Classic 無資料'
+          : 'Google Ads 高於 AF Classic' + (mDayCount === fd.length ? '' : '（同期 ' + mCover + '）')}</div>
     </div>
     <div class="card">
-      <div class="card-label">安裝差異率（AF）</div>
+      <div class="card-label">安裝差異率（SSOT）</div>
       <div class="card-value" style="color:${hiColor(installDiv)}">${installDiv}%</div>
-      <div class="card-sub">Google 高於 AF</div>
+      <div class="card-sub">Google Ads 高於 AF SSOT</div>
     </div>
     <div class="card">
       <div class="card-label">CPI 差異（均值）</div>
       <div class="card-value" style="color:${hiColor(cpiDiv)}">${cpiDiv}%</div>
-      <div class="card-sub">AF 較 Google 高</div>
+      <div class="card-sub">AF SSOT 較 Google Ads 高</div>
     </div>
   `;
 
@@ -915,21 +931,29 @@ function render() {
     }
   };
 
+  // Picked once so the three datasets and the subtitle cannot disagree.
+  const maSuffix = maMode ? '（7 日均）' : '';
+  const mSeries  = maMode ? ma7Null(mD) : mD;
+
+  document.getElementById('installNote').textContent = maMode
+    ? '顯示 7 日移動平均，已平滑掉單日波動'
+    : '顯示每日實際值';
+
   if (chI) chI.destroy();
   chI = new Chart(document.getElementById('cInstall').getContext('2d'), {
     type: 'line',
     data: {
       labels: lbls,
+      // Three lines, never six. Daily and 7-day-average are two views of the
+      // same three series, toggled rather than stacked — six overlapping lines
+      // made it impossible to read either one.
       datasets: [
-        { label:'Google Ads',   data: gD,      borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
-        { label:'AF SSOT',      data: aD,      borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'Google Ads install' + maSuffix,   data: maMode ? ma7(gD) : gD, borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'AF SSOT install' + maSuffix,      data: maMode ? ma7(aD) : aD, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
         // spanGaps:false is the Chart.js default, but it is spelled out here on
-        // purpose: it is the ONLY thing making a missing 行銷後台 day read as a
-        // gap instead of a plunge to zero. Do not "tidy" it away.
-        { label:'行銷後台',     data: mD,      borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mD), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
-        { label:'Google 7日均', data: ma7(gD), borderColor:'#2563EB', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
-        { label:'AF 7日均',     data: ma7(aD), borderColor:'#EA580C', borderWidth:1,   borderDash:[5,4], pointRadius:0, tension:0.3, fill:false },
-        { label:'行銷後台 7日均', data: ma7Null(mD), borderColor:'#059669', borderWidth:1, borderDash:[5,4], pointRadius:0, tension:0.3, fill:false, spanGaps:false },
+        // purpose: it is the ONLY thing making a missing AF Classic day read as
+        // a gap instead of a plunge to zero. Do not "tidy" it away.
+        { label:'AF Classic install' + maSuffix,   data: mSeries, borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mSeries), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
       ]
     },
     plugins: [crosshairPlugin],
@@ -947,16 +971,16 @@ function render() {
     data: {
       labels: lbls,
       datasets: [
-        { label:'Google CPI', data: gCPIArr, borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
-        { label:'AF CPI',     data: aCPIArr, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
-        { label:'行銷後台 CPI', data: mCPIArr, borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mCPIArr), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
+        { label:'Google Ads CPI', data: gCPIArr, borderColor:'#2563EB', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'AF SSOT CPI',    data: aCPIArr, borderColor:'#EA580C', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false },
+        { label:'AF Classic CPI', data: mCPIArr, borderColor:'#059669', borderWidth:1.5, pointRadius: isolatedPointRadius(mCPIArr), pointBackgroundColor:'#059669', tension:0.3, fill:false, spanGaps:false },
       ]
     },
     plugins: [crosshairPlugin],
     options: cpiOpts
   });
 
-  // Include 行銷後台 in the visibility test, otherwise a campaign that only the
+  // Include AF Classic in the visibility test, otherwise a campaign that only the
   // marketing backend knows about would be hidden entirely.
   const fcVisible = fc.filter(c =>
     fd.some(d => (RAW[d]?.[c.id]?.gi || 0) + (RAW[d]?.[c.id]?.ai || 0)
@@ -967,7 +991,7 @@ function render() {
     const g  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.gi || 0), 0);
     const a  = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.ai || 0), 0);
     const sp = fd.reduce((s, d) => s + (RAW[d]?.[c.id]?.sp || 0), 0);
-    // Per-campaign 行銷後台 total, over the days this campaign was RUNNING.
+    // Per-campaign AF Classic total, over the days this campaign was RUNNING.
     // Its CPI uses the spend of those same days only, so cost and installs
     // always cover the same calendar — otherwise a gap inflates the CPI.
     const mRun = fd.filter(d => RAW[d]?.[c.id]?.hasRow);
@@ -1030,7 +1054,7 @@ function render() {
       // mi starts as null, NOT 0 — see sumNull(). A campaign/day the marketing
       // backend never reported must stay distinguishable from a real zero.
       // hasRow distinguishes "this campaign was not running that day" from
-      // "it was running but 行銷後台 reported nothing" — the two look identical
+      // "it was running but AF Classic reported nothing" — the two look identical
       // once you only have a null, and conflating them fakes a crash.
       CAMPS.forEach(c => { RAW[d][c.id] = { gi: 0, ai: 0, mi: null, sp: 0, hasRow: false }; });
     });
@@ -1041,7 +1065,7 @@ function render() {
         gi: r.google_installs || 0,
         ai: r.af_installs || 0,
         // `?? null` on purpose: `|| 0` would turn "not reported" into a real 0
-        // and the 行銷後台 line would plunge to the floor instead of breaking.
+        // and the AF Classic line would plunge to the floor instead of breaking.
         mi: r.mkt_installs ?? null,
         sp: r.spend || 0,
         hasRow: true
