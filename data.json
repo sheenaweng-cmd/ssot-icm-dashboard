@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T07:32:17+00:00",
+  "generated_at": "2026-09-21T01:38:40+00:00",
   "campaigns": [
     "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
     "250804_UAC3.0_New_N_13-65+_N_05_iOS_TW_Google_ROAS_10%_VO3.0_\u542b\u91d1_\u624b\u64cd",
@@ -7759,7 +7759,7 @@
       "af_installs": 164,
       "google_installs": 300,
       "mkt_installs": 84,
-      "spend": 84611.0
+      "spend": 84598.0
     },
     {
       "date": "2026-09-13",
@@ -7775,7 +7775,7 @@
       "af_installs": 27,
       "google_installs": 41,
       "mkt_installs": 17,
-      "spend": 15185.0
+      "spend": 15184.0
     },
     {
       "date": "2026-09-13",
@@ -7791,7 +7791,7 @@
       "af_installs": 112,
       "google_installs": 232,
       "mkt_installs": 66,
-      "spend": 69676.0
+      "spend": 69668.0
     },
     {
       "date": "2026-09-14",
@@ -7821,9 +7821,9 @@
       "date": "2026-09-15",
       "campaign": "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 92,
-      "google_installs": 175,
+      "google_installs": 181,
       "mkt_installs": 88,
-      "spend": 63961.0
+      "spend": 63952.0
     },
     {
       "date": "2026-09-15",
@@ -7837,25 +7837,25 @@
       "date": "2026-09-15",
       "campaign": "250814_UAC2.0_New_N_13-65+_N_05_iOS_TW_Google_CPI_220_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 13,
-      "google_installs": 46,
+      "google_installs": 47,
       "mkt_installs": 12,
-      "spend": 11998.0
+      "spend": 11997.0
     },
     {
       "date": "2026-09-15",
       "campaign": "260302_UAC_New_N_13-65+_N_05_iOS_HK_Google_CPI_180_MAI1.0_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 12,
-      "google_installs": 18,
+      "google_installs": 22,
       "mkt_installs": 12,
-      "spend": 4861.0
+      "spend": 4860.0
     },
     {
       "date": "2026-09-16",
       "campaign": "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 92,
-      "google_installs": 190,
+      "google_installs": 205,
       "mkt_installs": 92,
-      "spend": 67001.0
+      "spend": 66996.0
     },
     {
       "date": "2026-09-16",
@@ -7869,15 +7869,15 @@
       "date": "2026-09-16",
       "campaign": "250814_UAC2.0_New_N_13-65+_N_05_iOS_TW_Google_CPI_220_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 12,
-      "google_installs": 45,
+      "google_installs": 46,
       "mkt_installs": 12,
-      "spend": 12561.0
+      "spend": 12560.0
     },
     {
       "date": "2026-09-16",
       "campaign": "260302_UAC_New_N_13-65+_N_05_iOS_HK_Google_CPI_180_MAI1.0_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 14,
-      "google_installs": 27,
+      "google_installs": 29,
       "mkt_installs": 14,
       "spend": 4923.0
     },
@@ -7885,15 +7885,15 @@
       "date": "2026-09-17",
       "campaign": "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 66,
-      "google_installs": 131,
+      "google_installs": 198,
       "mkt_installs": 66,
-      "spend": 66753.0
+      "spend": 66749.0
     },
     {
       "date": "2026-09-17",
       "campaign": "250804_UAC3.0_New_N_13-65+_N_05_iOS_TW_Google_ROAS_10%_VO3.0_\u542b\u91d1_\u624b\u64cd",
       "af_installs": 7,
-      "google_installs": 7,
+      "google_installs": 9,
       "mkt_installs": 7,
       "spend": 4619.0
     },
@@ -7901,9 +7901,9 @@
       "date": "2026-09-17",
       "campaign": "250814_UAC2.0_New_N_13-65+_N_05_iOS_TW_Google_CPI_220_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 4,
-      "google_installs": 22,
+      "google_installs": 26,
       "mkt_installs": 4,
-      "spend": 10102.0
+      "spend": 10101.0
     },
     {
       "date": "2026-09-17",
@@ -7917,25 +7917,25 @@
       "date": "2026-09-18",
       "campaign": "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 69,
-      "google_installs": 17,
+      "google_installs": 110,
       "mkt_installs": 69,
-      "spend": 67205.0
+      "spend": 67204.0
     },
     {
       "date": "2026-09-18",
       "campaign": "250804_UAC3.0_New_N_13-65+_N_05_iOS_TW_Google_ROAS_10%_VO3.0_\u542b\u91d1_\u624b\u64cd",
       "af_installs": 4,
-      "google_installs": 6,
+      "google_installs": 12,
       "mkt_installs": 4,
-      "spend": 4277.0
+      "spend": 4276.0
     },
     {
       "date": "2026-09-18",
       "campaign": "250814_UAC2.0_New_N_13-65+_N_05_iOS_TW_Google_CPI_220_\u5b89\u88dd_\u624b\u64cd",
       "af_installs": 5,
-      "google_installs": 4,
+      "google_installs": 9,
       "mkt_installs": 5,
-      "spend": 9673.0
+      "spend": 9671.0
     },
     {
       "date": "2026-09-18",
@@ -7943,7 +7943,39 @@
       "af_installs": 14,
       "google_installs": 17,
       "mkt_installs": 14,
-      "spend": 6800.0
+      "spend": 6789.0
+    },
+    {
+      "date": "2026-09-19",
+      "campaign": "211105_UAC_New_N_13-65+_N_05_iOS_TW_Google_CPI_370_\u5b89\u88dd_\u624b\u64cd",
+      "af_installs": 68,
+      "google_installs": 23,
+      "mkt_installs": 68,
+      "spend": 70977.0
+    },
+    {
+      "date": "2026-09-19",
+      "campaign": "250804_UAC3.0_New_N_13-65+_N_05_iOS_TW_Google_ROAS_10%_VO3.0_\u542b\u91d1_\u624b\u64cd",
+      "af_installs": 4,
+      "google_installs": 1,
+      "mkt_installs": 4,
+      "spend": 4512.0
+    },
+    {
+      "date": "2026-09-19",
+      "campaign": "250814_UAC2.0_New_N_13-65+_N_05_iOS_TW_Google_CPI_220_\u5b89\u88dd_\u624b\u64cd",
+      "af_installs": 18,
+      "google_installs": 4,
+      "mkt_installs": 18,
+      "spend": 19787.0
+    },
+    {
+      "date": "2026-09-19",
+      "campaign": "260302_UAC_New_N_13-65+_N_05_iOS_HK_Google_CPI_180_MAI1.0_\u5b89\u88dd_\u624b\u64cd",
+      "af_installs": 15,
+      "google_installs": 1,
+      "mkt_installs": 15,
+      "spend": 6596.0
     }
   ],
   "sdk_log": [
